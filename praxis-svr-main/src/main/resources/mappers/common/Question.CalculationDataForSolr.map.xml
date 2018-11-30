@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noriental.praxissvr.question.mapper.QuestionSolrMapper">
+
+    <resultMap id="BaseResultMap" type="com.noriental.praxissvr.question.bean.EntityQuestion">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="count_options" property="countOptions" jdbcType="INTEGER"/>
+        <result column="difficulty" property="difficulty" jdbcType="INTEGER"/>
+        <result column="high_qual" property="highQual" jdbcType="TINYINT"/>
+        <result column="mastery" property="mastery" jdbcType="INTEGER"/>
+        <result column="multi_score_answer" property="multiScoreAnswer" jdbcType="VARCHAR"/>
+        <result column="parent_question_id" property="parentQuestionId" jdbcType="BIGINT"/>
+        <result column="question_type" property="questionType" jdbcType="VARCHAR"/>
+        <result column="right_option" property="rightOption" jdbcType="VARCHAR"/>
+        <!--<result column="score" property="score" jdbcType="REAL"/>-->
+        <result column="is_single" property="isSingle" jdbcType="TINYINT"/>
+        <result column="state" property="state" jdbcType="VARCHAR"/>
+        <result column="qr_id" property="qrId" jdbcType="BIGINT"/>
+        <result column="count_topic" property="countTopic" jdbcType="INTEGER"/>
+        <result column="subject_id" property="subjectId" jdbcType="BIGINT"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="src" property="src" jdbcType="INTEGER"/>
+        <result column="upload_time" property="uploadTime" jdbcType="TIMESTAMP"/>
+        <result column="upload_id" property="uploadId" jdbcType="BIGINT"/>
+        <result column="upload_src" property="uploadSrc" jdbcType="INTEGER"/>
+        <result column="new_format" property="newFormat" jdbcType="TINYINT"/>
+        <result column="question_group" property="questionGroup" jdbcType="BIGINT"/>
+        <result column="answer_num" property="answerNum" jdbcType="INTEGER"/>
+        <result column="question_type_id" property="questionTypeId" jdbcType="INTEGER"/>
+        <result column="visible" property="visible" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <select id="selectById" resultMap="BaseResultMap" parameterType="Long">
+        select  * from entity_question t where t.parent_question_id=#{id}
+    </select>
+
+
+    <select id="selectByQuestionIdList" resultType="hashmap">
+        select lt.question_id questionId,t.id topicId,u.id unitId,m.id moduleId
+        from link_question_topic lt,entity_unit u,entity_module m,entity_topic t
+        where t.id = lt.topic_id and t.unit_id = u.id and u.module_id = m.id
+        <if test="list!=null and list.size()>0 ">
+            and lt.question_id in
+            <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

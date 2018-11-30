@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+    <!-- druid setting -->
+    <bean id="teahceWebWrongQue" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${ds.druid.driver}"/>
+
+        <property name="url" value="${ds.druid.url_error_question}"/>
+        <property name="username" value="${ds.druid.username}"/>
+        <property name="password" value="${ds.druid.password}"/>
+        <!-- qa(dev) -->
+        <!--<property name="url" value="jdbc:mysql://10.10.6.7:3306/neworiental_answer?useUnicode=true&amp;autoReconnect=true&amp;zeroDateTimeBehavior=convertToNull&amp;allowMultiQueries=true&amp;useSSL=true"/>-->
+        <!-- hotfix -->
+        <!--<property name="url" value="jdbc:mysql://10.10.6.7:3307/neworiental_answer?useUnicode=true&amp;autoReconnect=true&amp;zeroDateTimeBehavior=convertToNull&amp;allowMultiQueries=true&amp;useSSL=true"/>-->
+        <!--<property name="url" value="jdbc:mysql://172.18.4.5:3306/neworiental_answer?useUnicode=true&amp;autoReconnect=true&amp;zeroDateTimeBehavior=convertToNull&amp;allowMultiQueries=true"/>-->
+        <!--<property name="username" value="reader"/>
+        <property name="password" value="1a2s3dqwe"/>-->
+        <property name="initialSize" value="${ds.druid.initialSize}"/>
+        <property name="minIdle" value="${ds.druid.minIdle}"/>
+        <property name="maxActive" value="${ds.druid.maxActive}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${ds.druid.timeBetweenEvictionRunsMillis}"/>
+        <property name="minEvictableIdleTimeMillis" value="${ds.druid.minEvictableIdleTimeMillis}"/>
+        <property name="filters" value="${ds.druid.filters}"/>
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="teacherWebWrongQueFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mappers/mybatis-config.xml"/>
+        <property name="dataSource" ref="teahceWebWrongQue"/>
+        <property name="mapperLocations" value="classpath*:mappers/wrongdatas/*.xml"/>
+        <property name="plugins">
+            <list>
+                <ref bean="paginationInterceptor"/>
+                <ref bean="sqlCostInterceptor"/>
+            </list>
+        </property>
+
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.noriental.praxissvr.statis.statismapper"/>
+        <property name="sqlSessionFactoryBeanName" value="teacherWebWrongQueFactory"/>
+        <property name="annotationClass" value="org.springframework.stereotype.Repository"/>
+    </bean>
+    <bean id="paginationInterceptor" class="com.github.miemiedev.mybatis.paginator.OffsetLimitInterceptor">
+        <property name="dialect" ref="dialectClass"/>
+    </bean>
+    <bean id="sqlCostInterceptor" class="com.noriental.dao.SqlCostInterceptor"/>
+    <bean id="dialectClass" class="com.github.miemiedev.mybatis.paginator.dialect.MySQLDialect"/>
+
+</beans>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noriental.praxissvr.question.bean.QuestionTopic">
+
+    <resultMap id="questionTopicInfoMap" type="com.noriental.praxissvr.question.bean.QuestionTopic">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="topic_id" property="topicId" jdbcType="BIGINT"/>
+        <result column="question_id" property="questionId" jdbcType="BIGINT"/>
+        <result column="mastery" property="mastery" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="findQuesTopicByQuestionId" parameterType="LONG" resultMap="questionTopicInfoMap">
+        select
+        id,question_id,topic_id,mastery
+        from link_question_topic
+        WHERE question_id = #{questionId}
+    </select>
+    <select id="findQuesTopicByQuestionIdTopicId" parameterType="java.util.Map" resultMap="questionTopicInfoMap">
+        select
+        id,question_id,topic_id,mastery
+        from link_question_topic
+        WHERE question_id = #{questionId} and topic_id=#{topicId}
+    </select>
+
+    <select id="findByQuestionIds" resultMap="questionTopicInfoMap">
+        select
+        id,question_id,topic_id,mastery
+        from link_question_topic
+        WHERE
+        question_id in
+        <foreach item="id" index="index" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and
+        mastery >= 0
+    </select>
+
+    <select id="findByQuestionId" resultMap="questionTopicInfoMap">
+        select
+        id,question_id,topic_id,mastery
+        from link_question_topic
+        WHERE
+        question_id = #{id}
+        mastery >= 0
+    </select>
+</mapper>

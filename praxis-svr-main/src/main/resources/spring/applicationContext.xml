@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:task="http://www.springframework.org/schema/task" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <!-- New version -->
+    <util:properties id="hostProp" location="classpath:zk.properties"/>
+
+    <!-- 题库对接 -->
+    <bean id="AnswerBranchParam" class="com.noriental.praxissvr.answer.bean.AnswerBranchParam">
+        <property name="answerBranchUrl" value="${answer_branch_url}"/>
+        <property name="pythonServerOnlineTime" value="${python_server_online_time}"/>
+    </bean>
+
+    <!-- Config Profile -->
+    <bean id="configProfile" class="com.dangdang.config.service.zookeeper.ZookeeperConfigProfile">
+        <constructor-arg name="connectStr" value="#{hostProp['zk.address']}"/>
+        <constructor-arg name="rootNode" value="/xdfapp/praxis-svr"/>
+        <constructor-arg name="version" value="#{hostProp['zk.version']}"/>
+    </bean>
+    <bean id="zookeeperSources" class="com.dangdang.config.service.support.spring.ConfigGroupSourceFactory"
+          factory-method="create">
+        <constructor-arg name="configGroups">
+            <list>
+                <bean class="com.dangdang.config.service.zookeeper.ZookeeperConfigGroup"
+                      c:configProfile-ref="configProfile" c:node="change"/>
+                <bean class="com.dangdang.config.service.zookeeper.ZookeeperConfigGroup"
+                      c:configProfile-ref="configProfile" c:node="unchange"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="order" value="1"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="propertySources" ref="zookeeperSources"/>
+    </bean>
+    <context:component-scan base-package="com.noriental.praxissvr.*"/>
+    <aop:aspectj-autoproxy/>
+
+    <!-- druid setting -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${ds.druid.driver}"/>
+
+        <property name="url" value="${ds.druid.url}"/>
+        <property name="username" value="${ds.druid.username}"/>
+        <property name="password" value="${ds.druid.password}"/>
+        <!-- qa(dev) -->
+        <!--<property name="url" value="jdbc:mysql://10.10.6.7:3306/neworiental_answer?useUnicode=true&amp;autoReconnect=true&amp;zeroDateTimeBehavior=convertToNull&amp;allowMultiQueries=true&amp;useSSL=true"/>-->
+        <!-- hotfix -->
+        <!--<property name="url" value="jdbc:mysql://10.10.6.7:3307/neworiental_answer?useUnicode=true&amp;autoReconnect=true&amp;zeroDateTimeBehavior=convertToNull&amp;allowMultiQueries=true&amp;useSSL=true"/>-->
+        <!--<property name="url" value="jdbc:mysql://172.18.4.5:3306/neworiental_answer?useUnicode=true&amp;autoReconnect=true&amp;zeroDateTimeBehavior=convertToNull&amp;allowMultiQueries=true"/>-->
+        <!--<property name="username" value="reader"/>
+        <property name="password" value="1a2s3dqwe"/>-->
+        <property name="initialSize" value="${ds.druid.initialSize}"/>
+        <property name="minIdle" value="${ds.druid.minIdle}"/>
+        <property name="maxActive" value="${ds.druid.maxActive}"/>
+        <property name="maxWait" value="${ds.druid.maxWait}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${ds.druid.timeBetweenEvictionRunsMillis}"/>
+        <property name="minEvictableIdleTimeMillis" value="${ds.druid.minEvictableIdleTimeMillis}"/>
+        <property name="filters" value="${ds.druid.filters}"/>
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mappers/mybatis-config.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mapperLocations" value="classpath*:mappers/common/*.map.xml"/>
+        <property name="plugins">
+            <list>
+                <ref bean="paginationInterceptor"/>
+                <ref bean="sqlCostInterceptor"/>
+            </list>
+        </property>
+    </bean>
+    <bean id="paginationInterceptor" class="com.github.miemiedev.mybatis.paginator.OffsetLimitInterceptor">
+        <property name="dialect" ref="dialectClass"/>
+    </bean>
+
+    <bean id="sqlCostInterceptor" class="com.noriental.dao.SqlCostInterceptor"/>
+    <bean id="dialectClass" class="com.github.miemiedev.mybatis.paginator.dialect.MySQLDialect"/>
+
+    <!-- ================================== TRANSACTION DEFINITIONS ================================== -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="create*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED"/>
+            <tx:method name="delete*" propagation="REQUIRED"/>
+            <tx:method name="batch*" propagation="REQUIRED"/>
+            <tx:method name="reset*" propagation="REQUIRED"/>
+            <tx:method name="publish*" propagation="REQUIRED"/>
+            <tx:method name="share*" propagation="REQUIRED"/>
+            <tx:method name="submit*" propagation="SUPPORTS"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config>
+        <aop:pointcut id="serviceMethods"
+                      expression="((execution(* com.noriental.praxissvr.service..*.*(..))) or
+                      (execution(* com.noriental.praxissvr.*.service..*(..))))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="serviceMethods"/>
+    </aop:config>
+    <!-- ******************************************************************************************************* -->
+    <!-- druid 关联监控配置 ：方法名正则拦截匹配 -->
+    <bean id="druid-stat-interceptor"
+          class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor">
+    </bean>
+
+    <bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut"
+          scope="prototype">
+        <property name="patterns">
+            <list>
+                <value>com.noriental.praxissvr.*.dao.*</value>
+            </list>
+        </property>
+    </bean>
+    <aop:config>
+        <aop:advisor advice-ref="druid-stat-interceptor" pointcut-ref="druid-stat-pointcut"/>
+    </aop:config>
+
+    <!-- stat_filter sql监控 -->
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <property name="mergeSql" value="true"/>
+        <property name="slowSqlMillis" value="500"/>
+        <property name="logSlowSql" value="true"/>
+    </bean>
+
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.noriental.praxissvr.*.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <property name="annotationClass" value="org.springframework.stereotype.Repository"/>
+    </bean>
+    <!-- 任务调度器 -->
+    <!--  <task:scheduler id="scheduler" pool-size="10"/>-->
+    <!-- 任务执行器 -->
+    <!-- 当把answer库单独迁出来,mysql加了读写分离中间件,redis加了codis中间件后, pool-size="50" 改成 pool-size="100" -->
+    <task:executor id="executor" pool-size="50"/>
+
+    <!--开启注解调度支持 @Async @Scheduled-->
+    <task:annotation-driven executor="executor" proxy-target-class="true"/>
+
+</beans>

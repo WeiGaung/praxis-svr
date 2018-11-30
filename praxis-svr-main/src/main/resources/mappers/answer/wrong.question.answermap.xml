@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.wrongQuestion.mappers.WrongQuestionMapper">
+    <resultMap id="wrongQuesExercise" type="com.noriental.praxissvr.answer.bean.StudentExercise">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="student_id" property="studentId" jdbcType="BIGINT"/>
+        <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
+        <result column="question_id" property="questionId" jdbcType="BIGINT"/>
+        <result column="exercise_source" property="exerciseSource" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="picture_source" property="pictureSource" jdbcType="INTEGER"/>
+        <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP"/>
+        <result column="corrector_id" property="correctorId" jdbcType="BIGINT"/>
+        <result column="corrector_time" property="correctorTime" jdbcType="TIMESTAMP"/>
+        <result column="parent_question_id" property="parentQuestionId" jdbcType="BIGINT"/>
+        <result column="resource_id" property="resourceId" jdbcType="BIGINT"/>
+        <result column="redo_status" property="redoStatus" jdbcType="VARCHAR"/>
+        <result column="redo_source" property="redoSource" jdbcType="INTEGER"/>
+        <result column="postil_teacher_date" property="postilTeacherDate" jdbcType="TIMESTAMP"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="struct_id" property="structId" jdbcType="BIGINT"/>
+        <result column="question_type" property="questionType" jdbcType="VARCHAR"/>
+        <!--<result column="correct_status" property="correctStatus" jdbcType="BIGINT"/>-->
+        <result column="result" property="result" jdbcType="VARCHAR"/>
+        <result column="correct_role" property="correctorRole" jdbcType="VARCHAR"/>
+        <result column="postil" property="postilTeacher" jdbcType="VARCHAR"/>
+        <result column="answer" property="submitAnswer" jdbcType="VARCHAR"/>
+        <result column="postil_svg_flag" property="isNew" jdbcType="INTEGER"/>
+        <result column="audio_result" property="audioResult" jdbcType="VARCHAR"/>
+        <result column="intell_result" property="intellResult" jdbcType="VARCHAR"/>
+        <result column="is_white_list" property="isWhiteList" jdbcType="INTEGER"/>
+        <result column="intell_postil" property="intellPostil" jdbcType="VARCHAR"/>
+        <result column="intell_postil_status" property="intellPostilStatus" jdbcType="INTEGER"/>
+        <result column="subject_id" property="subjectId" jdbcType="INTEGER"/>
+        <result column="thp_result" property="thpResult" jdbcType="VARCHAR"/>
+        <result column="concat_answer" property="concatAnswer" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findWrongQuesSubjectStatis" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultType="com.noriental.praxissvr.wrongQuestion.bean.WrongQuesSubjectStatisEntity">
+        <![CDATA[
+
+
+      SELECT a.subject_id AS subjectId,count(a.question_id) AS questionNum FROM (SELECT subject_id,question_id FROM ${tableName}
+      WHERE data_type IN ('2','4') AND student_id = ${studentId} GROUP BY subject_id,question_id ) a GROUP BY a.subject_id
+
+
+        ]]>
+
+    </select>
+
+
+    <select id="findWrongQuesChapQuery" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultType="com.noriental.praxissvr.wrongQuestion.bean.WrongQuesChapterEntity">
+        <![CDATA[
+
+            SELECT  * FROM (
+             SELECT id,question_id  as questionId FROM ${tableName}
+                WHERE ${subjectId} = ${subjectIdValue} AND student_id = ${studentId} AND data_type IN (${dataType}) AND  ${directoryId} = ${directoryIdData}
+                AND ${chapterName}=${chapterData}   GROUP BY question_id
+                  ORDER BY id desc) a where  ${indexData} ORDER BY a.id DESC
+
+
+        ]]>
+
+
+    </select>
+
+    <select id="findRealWrongQuesChapQuery" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultType="com.noriental.praxissvr.wrongQuestion.bean.WrongQuesChapterEntity">
+        <![CDATA[
+
+
+             SELECT id,question_id  as questionId FROM ${tableName}
+                WHERE ${subjectId} = ${subjectIdValue} AND student_id = ${studentId} AND data_type IN (${dataType}) AND  ${directoryId} = ${directoryIdData}
+                AND ${chapterName}=${chapterData} AND data_status is null  AND  ${indexData} GROUP BY question_id
+                  ORDER BY id desc
+
+
+        ]]>
+
+
+    </select>
+
+
+    <select id="findWrongQuesChapNum" parameterType="java.util.HashMap" statementType="STATEMENT" resultType="int">
+           SELECT count(1) FROM (
+             SELECT question_id FROM ${tableName}
+                WHERE ${subjectId} = ${subjectIdValue} AND student_id = ${studentId} AND data_type IN (${dataType}) AND  ${directoryId} = ${directoryIdData}
+                AND ${chapterName}=${chapterData}   GROUP BY question_id) a
+
+    </select>
+
+    <select id="findRealWrongQuesChapNum" parameterType="java.util.HashMap" statementType="STATEMENT" resultType="int">
+        SELECT count(1) FROM (
+        SELECT question_id FROM ${tableName}
+        WHERE ${subjectId} = ${subjectIdValue} AND student_id = ${studentId} AND data_type IN (${dataType}) AND  ${directoryId} = ${directoryIdData}
+        AND ${chapterName}=${chapterData} AND data_status is null  GROUP BY question_id) a
+
+    </select>
+
+
+    <select id="findChapterNum" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultType="com.noriental.praxissvr.wrongQuestion.bean.WrongQuesSubjectStatisEntity">
+        <![CDATA[
+
+
+    SELECT a.qID as subjectId,count(1) as questionNum from (
+	SELECT DISTINCT exercise_source,resource_id,
+	  (CASE  WHEN parent_question_id is not  NULL THEN parent_question_id ELSE question_id END ) qID
+	FROM ${tableName}
+	WHERE student_id = ${studentId}
+	AND (question_id IN (${questionIds}) OR parent_question_id IN (${questionIds}))) a GROUP BY a.qID
+
+
+        ]]>
+    </select>
+
+
+    <select id="findWrongSingleQuestionHis" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultMap="wrongQuesExercise">
+        <![CDATA[
+
+
+        SELECT
+         id, student_id,student_name, question_id,struct_id, exercise_source, create_time, picture_source,submit_time,
+            corrector_id,corrector_time,parent_question_id,resource_id,redo_status,redo_source,postil_teacher_date,last_update_time,
+            question_type,result,correct_role,postil,answer,postil_svg_flag,audio_result,subject_id,thp_result,concat_answer
+        FROM ${tableName} WHERE question_id = ${questionId} AND student_id = ${studentId}
+         ORDER BY last_update_time DESC
+
+
+        ]]>
+
+    </select>
+
+
+    <select id="findWrongQuestionHis" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultMap="wrongQuesExercise">
+        <![CDATA[
+
+
+        SELECT
+         id, student_id,student_name, question_id,struct_id, exercise_source, create_time, picture_source,submit_time,
+            corrector_id,corrector_time,parent_question_id,resource_id,redo_status,redo_source,postil_teacher_date,last_update_time,
+            question_type,result,correct_role,postil,answer,postil_svg_flag,audio_result,subject_id,thp_result,concat_answer
+        FROM ${tableName} WHERE parent_question_id = ${questionId} AND student_id = ${studentId}
+        ORDER BY last_update_time DESC
+
+
+        ]]>
+
+    </select>
+
+
+    <select id="findWrongQuestions" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultType="com.noriental.praxissvr.wrongQuestion.bean.WrongQuesListEntity">
+        <![CDATA[
+             SELECT question_id FROM ${tableName} WHERE student_id =${studentId} AND data_status is NULL AND ${chapterName}=${chapterData}
+        ]]>
+        <if test="dataType==1">
+            AND data_type in (1,2)
+        </if>
+
+        <if test="dataType==2">
+            AND data_type = 2
+        </if>
+
+        <if test="dataType==3">
+            AND data_type in (3,4)
+        </if>
+
+        <if test="dataType==4">
+            AND data_type = 4
+        </if>
+        GROUP BY question_id ORDER BY id DESC
+    </select>
+
+    <select id="findWrongParentQuestions" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultType="com.noriental.praxissvr.wrongQuestion.bean.WrongQuesListEntity">
+        <![CDATA[
+
+
+             SELECT question_id FROM ${tableName} WHERE student_id =${studentId} AND data_status is NULL  AND data_type =${dataType}
+             AND ${chapterName}=${chapterData}  GROUP BY question_id ORDER BY id DESC
+
+
+        ]]>
+    </select>
+
+
+    <update id="updateStatusList" parameterType="java.util.List" statementType="STATEMENT">
+        <foreach collection="list" item="item" separator=";">
+            update ${item.tableName} set data_status=null where id= ${item.id}
+            and student_id = ${item.studentId} and data_status=0
+        </foreach>
+
+    </update>
+
+
+    <update id="updateKnowledgeStatusList" parameterType="java.util.List" statementType="STATEMENT">
+        <foreach collection="list" item="item" separator=";">
+            update ${item.tableName}
+            <set>
+                create_time = now(),
+                data_status=${item.dataStatus},
+            </set>
+            <where>
+                <if test="item.studentId != null">
+                    student_id = ${item.studentId}
+                </if>
+                <if test="item.questionId != null">
+                    and question_id = ${item.questionId}
+                </if>
+                <if test="item.dataType != null">
+                    and data_type = ${item.dataType}
+                </if>
+                <if test="item.topicId != null">
+                    and topic_id = ${item.topicId}
+                </if>
+                <if test="item.unitId != null">
+                    and unit_id = ${item.unitId}
+                </if>
+                <if test="item.moduleId != null">
+                    and module_id = ${item.moduleId}
+                </if>
+                <!-- <if test="item.directoryId != null">
+                     and directory_id = #{item.directoryId}
+                 </if>-->
+            </where>
+        </foreach>
+    </update>
+
+
+    <update id="updateKnowledgeStatu" parameterType="java.util.HashMap" statementType="STATEMENT">
+        update ${tableName}
+        <set>
+            create_time = now(),
+            data_status=${dataStatu},
+        </set>
+        <where>
+            data_type in(2,4)
+            <if test="studentId != null">
+                and student_id = ${studentId}
+            </if>
+            <if test="questionId != null">
+                and question_id = ${questionId}
+            </if>
+
+        </where>
+
+    </update>
+
+
+    <select id="findWrongQuestionsNum" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultType="com.noriental.praxissvr.wrongQuestion.bean.WrongQuesChapterEntity">
+
+        SELECT a.qID as questionId,count(1) as questionErrorNum from (
+        SELECT  (CASE  WHEN parent_question_id is not  NULL THEN parent_question_id ELSE question_id END ) qID
+        FROM ${tableName}
+        WHERE student_id = ${studentId}
+        AND (question_id IN (${questionIds}) OR parent_question_id IN (${questionIds}))) a GROUP BY a.qID
+    </select>
+
+
+    <select id="findKnowledgeQuestionIds" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultType="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge">
+     <![CDATA[
+
+
+             SELECT DISTINCT question_id as questionId FROM ${tableName} WHERE student_id =${studentId} AND data_status is NULL  AND data_type =${dataType}
+             AND ${chapterName}=${chapterData}  and ${createTime}
+
+
+        ]]>
+
+    </select>
+
+    <select id="findQuestionsByIds" parameterType="java.util.HashMap" statementType="STATEMENT"
+            resultMap="wrongQuesExercise">
+        <![CDATA[
+
+
+        SELECT
+         id, student_id, question_id,struct_id, exercise_source, create_time, picture_source,submit_time,
+            corrector_id,corrector_time,parent_question_id,resource_id,redo_status,redo_source,postil_teacher_date,last_update_time,
+            question_type,result,correct_role,postil,answer,postil_svg_flag,audio_result
+        FROM ${tableName} WHERE   student_id = ${studentId} AND (parent_question_id = ${questionId} or question_id=${questionId})
+        ORDER BY last_update_time DESC
+
+
+        ]]>
+
+    </select>
+
+</mapper>
+
+

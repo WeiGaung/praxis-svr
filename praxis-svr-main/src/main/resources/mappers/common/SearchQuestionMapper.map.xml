@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noriental.praxissvr.questionSearch.mapper.QuestionSearchMapper">
+
+
+    <select id="getQuesListByIds" parameterType="java.util.List" resultType="com.noriental.praxissvr.question.bean.Question">
+        SELECT q.id,q.parent_question_id as parentQuestionId,t.struct_id as structId,q.question_type_id as questionTypeId FROM entity_question q,entity_question_type t WHERE
+        q.question_type_id=t.type_id and q.id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+</mapper>

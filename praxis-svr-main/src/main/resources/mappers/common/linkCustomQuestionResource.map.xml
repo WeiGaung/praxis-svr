@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.question.mapper.LinkCustomQuestionResourceMapper" >
+
+
+    <insert id="insertLinkCustomQuestionResource" parameterType="com.noriental.praxissvr.question.bean.CustomQuestionResource" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO link_custom_question_resource (system_id,group_id,custom_list_id,is_fav,question_id,resource_status,create_time,update_time)
+                                            VALUES
+                          (#{systemId},#{groupId},#{customListId},#{isFav},#{questionId},#{resourceStatus},#{createTime},now())
+    </insert>
+
+    <select id="queryCustomQuestionResourceByQuesIdAndSysId" resultType="com.noriental.praxissvr.question.bean.CustomQuestionResource">
+        SELECT id,system_id,group_id,custom_list_id,is_fav,question_id,resource_status,create_time
+        FROM link_custom_question_resource
+        WHERE question_id=#{questionId} AND system_id = #{systemId}
+    </select>
+
+    <update id="updateLinkCustomQuestionResource" parameterType="com.noriental.praxissvr.question.bean.CustomQuestionResource" >
+        UPDATE link_custom_question_resource 
+        <set>
+            <if test="groupId!=null">group_id=#{groupId},</if>
+            <if test="customListId!=null">custom_list_id=#{customListId},</if>
+            <if test="isFav!=null">is_fav=#{isFav},</if>
+            <if test="questionId!=null">question_id=#{questionId},</if>
+            <if test="resourceStatus!=null">resource_status=#{resourceStatus},</if>
+            <if test="updateTime!=null">update_time=#{updateTime}</if>
+        </set>
+        WHERE question_id=#{questionId} AND system_id=#{systemId}
+    </update>
+
+    <select id="queryCustomQuestionResourceByCusDirId" resultType="com.noriental.praxissvr.question.bean.CustomQuestionResource">
+        SELECT id,system_id,group_id,custom_list_id,is_fav,question_id,resource_status,create_time
+        FROM link_custom_question_resource
+        WHERE custom_list_id=#{cusDirId} AND system_id=#{systemId}
+    </select>
+
+    <update id="updateLinkCustomDirectoryBySysIdAndCusDirId" parameterType="java.lang.Long">
+        UPDATE link_custom_question_resource
+        <set>
+            <if test="groupId!=null">group_id=#{groupId},</if>
+            <if test="cusDirId!=null">custom_list_id=#{cusDirId},</if>
+            update_time=now()
+        </set>
+        WHERE custom_list_id=#{oldCusDirId} AND system_id=#{systemId}
+    </update>
+
+    <delete id="deleteCustomDiritory" parameterType="java.lang.Long">
+        DELETE FROM link_custom_question_resource WHERE question_id=#{questionId} AND system_id=#{systemId}
+    </delete>
+
+    <delete id="deleteLinkCusDirQuestion" parameterType="java.lang.Long">
+        DELETE FROM link_custom_question_resource WHERE custom_list_id=#{cusDirId} AND system_id=#{systemId} AND question_id=#{questionId}
+    </delete>
+
+
+    <select id="queryCustomQuestionBySysIdAndCusDirIdAndQuestId" parameterType="java.lang.Long" resultType="com.noriental.praxissvr.question.bean.CustomQuestionResource">
+        SELECT id,system_id,group_id,custom_list_id,is_fav,question_id,resource_status,create_time
+        FROM link_custom_question_resource
+        WHERE custom_list_id=#{cusDirId} AND question_id=#{questionId} AND system_id=#{systemId}
+    </select>
+
+    <!-- 批量插入 -->
+    <insert id="batchInsertLinkCustomQuestionResource" parameterType="com.noriental.praxissvr.question.bean.CustomQuestionResource" useGeneratedKeys="true">
+        INSERT INTO link_custom_question_resource (system_id,group_id,custom_list_id,is_fav,question_id,resource_status,create_time,update_time) VALUES
+        <foreach collection="list" item="item" separator="," index="index">
+            (#{item.systemId},#{item.groupId},#{item.customListId},#{item.isFav},#{item.questionId},#{item.resourceStatus},#{item.createTime},now())
+        </foreach>
+    </insert>
+
+
+    <!-- 批量更新 -->
+    <update id="batchUpdateLinkCustomQuestionResource" parameterType="java.util.List">
+          <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+              UPDATE link_custom_question_resource
+              <set>
+                  custom_list_id=#{item.customListId},group_id=#{item.groupId},update_time=now()
+              </set>
+              WHERE question_id=#{item.questionId} AND system_id=#{item.systemId}
+          </foreach>
+    </update>
+
+    <select id="findLinkCustomQuestionResource" parameterType="map"  resultType="Long" >
+        SELECT distinct(question_id)
+        FROM link_custom_question_resource
+        WHERE
+        is_fav = 0 and resource_status = 1
+        <if test="systemId !=null and systemId !=''"> AND system_id=#{systemId}</if>
+        <if test="catalogGroupId !=null and catalogGroupId !=''"> AND group_id=#{catalogGroupId}</if>
+
+        <if test="isCustomListid == 1">
+            <if test="level == '1'.toString()">
+                <if test = "catalogId != null and catalogId != ''">
+                    AND custom_list_id=#{catalogId}
+                </if>
+            </if>
+            <if test = "level == '2'.toString()">
+                <if test = "catalogIdFirst != null and catalogIdFirst != ''">
+                    AND custom_list_id=#{catalogIdFirst}
+                </if>
+            </if>
+            <if test = "level == '3'.toString()">
+                <if test = "catalogIdSecond != null and catalogIdSecond != ''">
+                    AND custom_list_id=#{catalogIdSecond}
+                </if>
+            </if>
+        </if>
+        <if test="isCustomListid == 0">
+            <if test="customListId != null and customListId.size()>0">
+                and custom_list_id in
+                <foreach item="item" index="index" collection="customListId" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </if>
+    </select>
+
+</mapper>

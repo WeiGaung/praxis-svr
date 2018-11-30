@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noriental.praxissvr.question.mapper.QuestionFeedbackMapper">
+    <resultMap id="BaseResultMap" type="com.noriental.praxissvr.question.bean.QuestionFeedback">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="question_id" property="question_id"/>
+        <result column="exercise_id" property="exercise_id"/>
+        <result column="user_type" property="user_type"/>
+        <result column="source_sys" property="source_sys"/>
+        <result column="submit_time" property="submit_time"/>
+        <result column="submit_by" property="submit_by"/>
+        <result column="submit_name" property="submit_name"/>
+        <result column="error_type" property="error_type"/>
+        <result column="error_detail" property="error_detail"/>
+        <result column="status" property="status"/>
+        <result column="process_by" property="process_by"/>
+        <result column="process_time" property="process_time"/>
+        <result column="remark" property="remark"/>
+        <result column="subject_id" property="subject_id"/>
+        <result column="stage_id" property="stage_id"/>
+        <result column="ques_upload_name" property="ques_upload_name"/>
+        <result column="ques_upload_school" property="ques_upload_school"/>
+        <result column="ques_upload_id" property="ques_upload_id"/>
+        <result column="ques_resource_type" property="ques_resource_type"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, question_id,exercise_id, `user_type`,source_sys, submit_time,submit_by,submit_name, error_type, error_detail,
+        status,process_by,process_time,remark,subject_id,stage_id,ques_upload_school,ques_upload_id,ques_resource_type
+    </sql>
+
+    <!--<select id="findEntrustExercises" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM entrust_upload
+        WHERE teacher_id = #{teacher_id}
+        order by `time` desc
+    </select>
+
+    <update id="updateEntrustExercise">
+        update entity_question_feedback
+        <set>
+            last_update_time = now(),
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="approve_desc != null">
+                approve_desc = #{approve_desc},
+            </if>
+            <if test="approve_system_name != null">
+                approve_system_name = #{approve_system_name},
+            </if>
+            <if test="approve_system_id != null">
+                approve_system_id = #{approve_system_id},
+            </if>
+        </set>
+        <where>
+           id = #{id}
+        </where>
+    </update>-->
+
+    <insert id="createQuestionFeedback" useGeneratedKeys="true" keyProperty="id" parameterType="com.noriental.praxissvr.question.request.CreateQuestionFeedbackRequest">
+    insert into entity_question_feedback
+        (
+            `question_id`,`ques_upload_name`, `exercise_id`,
+            `submit_by`,`submit_name`,  `user_type` ,
+            `source_sys`, `submit_time`,error_type,
+            error_detail,subject_id,stage_id,
+            ques_upload_school,ques_upload_id,ques_resource_type
+        )
+    values
+        (
+            #{question_id},#{ques_upload_name},#{exercise_id},
+            #{submit_by},#{submit_name},#{user_type},
+            #{source_sys},now(),#{error_types},
+            #{error_detail},#{subject_id},#{stage_id},
+            #{ques_upload_school},#{ques_upload_id},#{ques_resource_type}
+        )
+    </insert>
+
+    <select id="findQuestionFeedbacks" parameterType="com.noriental.praxissvr.question.request.FindQuestionFeedbacksRequest" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM entity_question_feedback
+        WHERE submit_by = #{studentId}
+        and question_id=#{questionId}
+    </select>
+
+    <select id="getQuesUploadSchool" parameterType="java.lang.Long" resultType="java.lang.String">
+        SELECT
+	      IFNULL(f.NAME,m.name) as ques_upload_school
+        FROM
+	      neworiental_user.entity_user AS e
+	      LEFT JOIN entity_public_school AS f ON f.id = e.org_id
+	      LEFT JOIN entity_private_school AS m ON m.id = e.org_id
+        WHERE
+	      e.system_id = #{systemId};
+    </select>
+
+</mapper>

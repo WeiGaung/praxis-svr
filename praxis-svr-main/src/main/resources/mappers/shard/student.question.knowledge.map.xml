@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.answer.dao.StuQuesKnowledgeShardDao">
+    <resultMap id="stuQuesKnowledge" type="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="data_type" property="dataType" jdbcType="INTEGER"/>
+        <result column="student_id" property="studentId" jdbcType="BIGINT"/>
+        <result column="subject_id" property="subjectId" jdbcType="BIGINT"/>
+        <result column="module_id" property="moduleId" jdbcType="BIGINT"/>
+        <result column="unit_id" property="unitId" jdbcType="BIGINT"/>
+        <result column="topic_id" property="topicId" jdbcType="BIGINT"/>
+        <result column="question_id" property="questionId" jdbcType="BIGINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="question_count" property="questionCount" jdbcType="INTEGER"/>
+        <result column="data_status" property="dataStatus" jdbcType="INTEGER"/>
+        <result column="seq" property="seq" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id,data_type,student_id,subject_id,module_id,unit_id,topic_id,question_id,create_time,question_count,data_status
+    </sql>
+    <!--根据 学生 学科 查找 问题列表 -->
+    <select id="findStuQuesKnowledgeInfo" resultMap="stuQuesKnowledge" parameterType="com.noriental.praxissvr.common.TrailBaseErrorRequestRequest">
+        select
+        <include refid="Base_Column_List"/>
+        from entity_stu_ques_knowledge
+        where 1=1
+        <if test="studentId != 0L and studentId != null">
+            AND student_id = #{studentId}
+        </if>
+        <if test="subjectId != 0L and subjectId != null">
+            AND subject_id = #{subjectId}
+        </if>
+        <if test="directoryId != 0L and directoryId != null">
+            AND directory_id = #{directoryId}
+        </if>
+        <if test="isTopic">
+            AND data_type = 2
+        </if>
+        <if test="!isTopic">
+            AND data_type = 4
+        </if>
+    </select>
+
+    <select id="findByStuQuesKnow" parameterType="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge" resultMap="stuQuesKnowledge">
+        select
+        <include refid="Base_Column_List"/>
+        from entity_stu_ques_knowledge
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="dataType != null">
+                and data_type = #{dataType}
+            </if>
+            <if test="topicId != null">
+                and topic_id = #{topicId}
+            </if>
+            <if test="unitId != null">
+                and unit_id = #{unitId}
+            </if>
+            <if test="moduleId != null">
+                and module_id = #{moduleId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="dataTypeList != null and dataTypeList.size()>0">
+                and data_type in
+                <foreach item="item" collection="dataTypeList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="stuQuesKnowledgeList != null and stuQuesKnowledgeList.size()>0">
+                <foreach collection="stuQuesKnowledgeList" item="item" open="and (" separator=" or " close=")">
+                    (
+                    <if test="item.dataType != null">
+                        data_type = #{item.dataType}
+                    </if>
+                    <if test="item.topicId != null">
+                        and topic_id = #{item.topicId}
+                    </if>
+                    <if test="item.unitId != null">
+                        and unit_id = #{item.unitId}
+                    </if>
+                    <if test="item.moduleId != null">
+                        and module_id = #{item.moduleId}
+                    </if>
+                    <if test="item.questionId != null">
+                        and question_id = #{item.questionId}
+                    </if>
+                    )
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteByStuQuesKnow" parameterType="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge">
+        delete
+        from entity_stu_ques_knowledge
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="dataType != null">
+                and data_type = #{dataType}
+            </if>
+            <if test="topicId != null">
+                and topic_id = #{topicId}
+            </if>
+            <if test="unitId != null">
+                and unit_id = #{unitId}
+            </if>
+            <if test="moduleId != null">
+                and module_id = #{moduleId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="dataTypeList != null and dataTypeList.size()>0">
+                and data_type in
+                <foreach item="item" collection="dataTypeList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="stuQuesKnowledgeList != null and stuQuesKnowledgeList.size()>0">
+                <foreach collection="stuQuesKnowledgeList" item="item" open="and (" separator=" or " close=")">
+                    (
+                    <if test="item.dataType != null">
+                        data_type = #{item.dataType}
+                    </if>
+                    <if test="item.topicId != null">
+                        and topic_id = #{item.topicId}
+                    </if>
+                    <if test="item.unitId != null">
+                        and unit_id = #{item.unitId}
+                    </if>
+                    <if test="item.moduleId != null">
+                        and module_id = #{item.moduleId}
+                    </if>
+                    <if test="item.questionId != null">
+                        and question_id = #{item.questionId}
+                    </if>
+                    )
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <insert id="creates">
+        INSERT INTO entity_stu_ques_knowledge (student_id, data_type,subject_id, module_id, unit_id, topic_id,
+        question_id, create_time,question_count,directory_id) VALUES
+        <foreach item="item" collection="list" separator=",">
+            ( #{item.studentId,jdbcType=BIGINT},#{item.dataType,jdbcType=INTEGER}, #{item.subjectId,jdbcType=BIGINT},
+            #{item.moduleId,jdbcType=BIGINT},
+            #{item.unitId,jdbcType=BIGINT}, #{item.topicId,jdbcType=BIGINT}, #{item.questionId,jdbcType=BIGINT},now(),
+            #{item.questionCount,jdbcType=INTEGER}, #{item.directoryId,jdbcType=INTEGER} )
+        </foreach>
+    </insert>
+
+    <delete id="deleteWrongQues" parameterType="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge">
+        delete
+        FROM entity_stu_ques_knowledge
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="dataType != null">
+                and data_type = #{dataType}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+        </where>
+    </delete>
+
+    <delete id="deleteByIds" parameterType="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge">
+        delete
+        FROM entity_stu_ques_knowledge
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="idList != null and idList.size()>0">
+                and id in
+                <foreach item="item" collection="idList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <delete id="deleteByStuQuesKnowledges" parameterType="java.util.List">
+        delete
+        FROM entity_stu_ques_knowledge
+        <where>
+            <foreach collection="list" item="item" separator=" or ">
+                (
+                <if test="item.id != null">
+                    id = #{item.id}
+                </if>
+                )
+            </foreach>
+        </where>
+    </delete>
+
+    <select id="findByIdses" parameterType="java.util.List" resultMap="stuQuesKnowledge">
+        select
+        <include refid="Base_Column_List"/>
+        from entity_stu_ques_knowledge
+        <where>
+            <foreach collection="list" item="item" separator=" or ">
+                (
+                <if test="item.studentId != null">
+                    student_id = #{item.studentId}
+                </if>
+                <if test="item.dataType != null">
+                    and data_type = #{item.dataType}
+                </if>
+                <if test="item.topicId != null">
+                    and topic_id = #{item.topicId}
+                </if>
+                <if test="item.unitId != null">
+                    and unit_id = #{item.unitId}
+                </if>
+                <if test="item.moduleId != null">
+                    and module_id = #{item.moduleId}
+                </if>
+                <if test="item.questionId != null">
+                    and question_id = #{item.questionId}
+                </if>
+                )
+            </foreach>
+        </where>
+    </select>
+
+    <select id="findStuQues" resultMap="stuQuesKnowledge" parameterType="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge">
+			SELECT module_id, unit_id, topic_id,question_id
+			FROM entity_stu_ques_knowledge
+		 WHERE student_id = #{studentId}
+			AND subject_id = #{subjectId}
+			AND data_type = #{dataType}
+	</select>
+
+    <select id="findLevledStuQues" resultMap="stuQuesKnowledge">
+        SELECT * from (
+        SELECT DISTINCT question_id
+        FROM entity_stu_ques_knowledge
+        WHERE student_id = #{studentId}
+        AND data_type = #{dataType}
+        <if test="topicId != null">
+            and topic_id = #{topicId}
+        </if>
+        <if test="unitId != null">
+            and unit_id = #{unitId}
+        </if>
+        <if test="moduleId != null">
+            and module_id = #{moduleId}
+        </if>
+        ) a
+    </select>
+
+
+    <insert id="insert" parameterType="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO entity_stu_ques_knowledge (student_id,
+		data_type,subject_id, module_id, unit_id, topic_id, question_id,difficulty, create_time) VALUES
+		(#{studentId,jdbcType=BIGINT}, #{dataType,jdbcType=INTEGER},
+		#{subjectId,jdbcType=BIGINT}, #{moduleId,jdbcType=BIGINT}, #{unitId,jdbcType=BIGINT},
+		#{topicId,jdbcType=BIGINT},
+		#{questionId,jdbcType=BIGINT},#{difficulty,jdbcType=INTEGER},now()
+		)
+	</insert>
+
+
+    <select id="findStuQuesKnowledge" parameterType="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge" resultMap="stuQuesKnowledge">
+        select
+        <include refid="Base_Column_List"/>
+        from entity_stu_ques_knowledge
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="dataType != null">
+                and data_type = #{dataType}
+            </if>
+            <if test="dataTypeList != null and dataTypeList.size()>0">
+                and data_type in
+                <foreach item="item" collection="dataTypeList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="topicId != null">
+                and topic_id = #{topicId}
+            </if>
+            <if test="unitId != null">
+                and unit_id = #{unitId}
+            </if>
+            <if test="moduleId != null">
+                and module_id = #{moduleId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+
+        </where>
+        group by student_id,subject_id,question_id
+        ORDER BY id DESC limit 0,500
+
+    </select>
+
+    <update id="updateStatusList" parameterType="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge">
+            update entity_stu_ques_knowledge set  data_status=null where  id= #{id}
+             and  student_id = #{studentId} and data_status=0
+
+    </update>
+
+
+    <update id="updateKnowledgeStatusList" parameterType="com.noriental.praxissvr.wrong.bean.StuQuesKnowledge">
+        update entity_stu_ques_knowledge
+        <set>
+            data_status=#{dataStatus,jdbcType=INTEGER},
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="topicId != null">
+                topic_id = #{topicId,jdbcType=BIGINT},
+            </if>
+            <if test="unitId != null">
+                unit_id = #{unitId,jdbcType=BIGINT},
+            </if>
+            <if test="moduleId != null">
+                module_id = #{moduleId,jdbcType=BIGINT},
+            </if>
+        </set>
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+
+        </where>
+    </update>
+
+
+</mapper>
+
+

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noriental.praxissvr.question.mapper.LinkQuestionChapterMapper">
+
+    <insert id="createLinkQuestionChapter" parameterType="long">
+        INSERT ignore INTO link_question_chapter (question_id,chapter_id) VALUES (#{questionId},#{chapterId})
+    </insert>
+
+    <!-- 批量插入 -->
+    <insert id="batchLinkQuestionChapter" useGeneratedKeys="true" parameterType="java.util.List">
+        INSERT INTO link_question_chapter (question_id,chapter_id) VALUES
+        <foreach item="item" collection="list"  index= "index" separator=",">
+            (#{item.questionId}, #{item.chapterId})
+        </foreach>
+    </insert>
+
+
+    <delete id="deleteLinkQuestionChapterById" parameterType="long">
+      DELETE FROM link_question_chapter WHERE question_id=#{questionId}
+    </delete>
+
+
+    <select id="findLinkQuestionChapterById" resultType="com.noriental.praxissvr.question.bean.LinkQuestionChapter">
+      SELECT id,
+             question_id AS questionId,
+             chapter_id AS chapterId,
+             src_flag AS srcFlag
+          FROM link_question_chapter
+          WHERE question_id=#{questionId}
+    </select>
+
+</mapper>

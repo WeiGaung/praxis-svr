@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.brush.bean.StudentWork">
+    <resultMap id="studentWord" type="com.noriental.praxissvr.brush.bean.StudentWork">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="work_name" property="workName" jdbcType="VARCHAR"/>
+        <result column="resource_type" property="resourceType" jdbcType="INTEGER"/>
+        <result column="work_level" property="workLevel" jdbcType="INTEGER"/>
+        <result column="student_id" property="studentId" jdbcType="BIGINT"/>
+        <result column="subject_id" property="subjectId" jdbcType="BIGINT"/>
+        <result column="module_id" property="moduleId" jdbcType="BIGINT"/>
+        <result column="unit_id" property="unitId" jdbcType="BIGINT"/>
+        <result column="topic_id" property="topicId" jdbcType="BIGINT"/>
+        <result column="work_status" property="workStatus" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,work_name,resource_type,work_level,student_id,subject_id,module_id,unit_id,topic_id,work_status,create_time,last_update_time,year,type
+    </sql>
+
+    <select id="findById" resultMap="studentWord" parameterType="java.lang.Long">
+        select
+        <include refid="Base_Column_List"/>
+        from entity_student_work
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="findExist" resultType="int" parameterType="com.noriental.praxissvr.brush.bean.StudentWork">
+        select
+        count(1)
+        from entity_student_work
+        where id = #{id,jdbcType=BIGINT}
+        <if test="studentId != null">
+            and student_id = #{studentId}
+        </if>
+    </select>
+
+    <select id="findForExist" resultMap="studentWord" parameterType="com.noriental.praxissvr.brush.bean.StudentWork">
+        select
+        <include refid="Base_Column_List"/>
+        from entity_student_work
+        where id = #{id,jdbcType=BIGINT}
+        <if test="studentId != null">
+            and student_id = #{studentId}
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="com.noriental.praxissvr.brush.bean.StudentWork" useGeneratedKeys="true" keyProperty="id">
+    insert into entity_student_work 
+    (work_name,resource_type,work_level, student_id,
+     subject_id, module_id, unit_id, 
+      topic_id,work_status,create_time,last_update_time,`year`,`type`)
+    values 
+    (#{workName,jdbcType=VARCHAR}, #{resourceType,jdbcType=INTEGER},#{workLevel,jdbcType=INTEGER}, #{studentId,jdbcType=BIGINT},
+       #{subjectId,jdbcType=BIGINT}, #{moduleId,jdbcType=BIGINT},  #{unitId,jdbcType=BIGINT},
+         #{topicId,jdbcType=BIGINT},  #{workStatus,jdbcType=INTEGER},now(),now(), #{year}, #{type}
+         )       
+  </insert>
+
+    <update id="update" parameterType="com.noriental.praxissvr.brush.bean.StudentWork">
+        update entity_student_work
+        <set>
+            last_update_time = now(),
+            <if test="workStatus != null">
+                work_status = #{workStatus,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <select id="getWorks" parameterType="java.util.Map" resultMap="studentWord">
+        SELECT * from (
+        SELECT w.*,m.`status` mstatus, u.`status` ustatus, t.`status` tstaus from entity_student_work w
+        LEFT JOIN entity_module m ON m.id = w.module_id
+        LEFT JOIN entity_unit u ON u.id = w.unit_id
+        LEFT JOIN entity_topic t ON t.id = w.topic_id
+        <where>
+            <if test="studentId != null">
+                and
+                w.student_id = #{studentId}
+            </if>
+            <if test="subjectId != null">
+                and w.subject_id = #{subjectId}
+            </if>
+            <if test="moduleId != null">
+                and w.module_id = #{moduleId}
+            </if>
+            <if test="unitId != null">
+                and w.unit_id = #{unitId}
+            </if>
+            <if test="topicId != null">
+                and w.topic_id = #{topicId}
+            </if>
+            <if test="status != null">
+                and w.work_status = #{status}
+            </if>
+            and w.`type` = 5
+        </where>
+
+        ) tt where (tt.mstatus =1 or tt.mstatus is null) and (tt.ustatus = 1 or tt.ustatus is null) and (tt.tstaus = 1 or tt.tstaus is null)
+        order by tt.last_update_time desc
+    </select>
+
+</mapper>

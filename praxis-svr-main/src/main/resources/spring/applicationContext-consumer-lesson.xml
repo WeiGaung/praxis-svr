@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+ 	<dubbo:reference id="lessonService"
+		interface="com.noriental.lessonsvr.rservice.LessonService" version="${service.dubbo.lesson.version}"
+		check="false" timeout="5000" retries="0" >
+    </dubbo:reference>
+
+	<dubbo:reference id="qiniuVoiceService"
+					 interface="com.noriental.extresources.service.QiniuVoiceService" version="${service.dubbo.lesson.version}"
+					 check="false" timeout="5000" retries="0" >
+	</dubbo:reference>
+
+	<dubbo:reference id="customListService"
+					 interface="com.noriental.resourcesvr.customlist.service.CustomListService" version="${service.dubbo.lesson.version}"
+					 check="false" timeout="5000" retries="0">
+	</dubbo:reference>
+
+	<dubbo:reference id="counterResService"
+					 interface="com.noriental.resourcesvr.common.service.CounterResService" version="${service.dubbo.lesson.version}"
+					 check="false" timeout="5000" retries="0" >
+	</dubbo:reference>
+
+	<dubbo:reference id="ClipService"
+					 interface="com.noriental.resourcesvr.clip.service.ClipService" version="${service.dubbo.lesson.version}"
+					 check="false" timeout="5000" retries="0" >
+	</dubbo:reference>
+
+</beans>

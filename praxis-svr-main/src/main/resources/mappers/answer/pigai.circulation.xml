@@ -1,0 +1,812 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.answer.mappers.PigaiCirculationMapper">
+    <resultMap id="flowTurnParam" type="com.noriental.praxissvr.answer.bean.FlowTurn">
+        <result column="system_id" property="systemId" jdbcType="BIGINT"/>
+        <result column="question_id" property="questionId" jdbcType="BIGINT"/>
+        <result column="parent_question_id" property="parentQuestionId" jdbcType="BIGINT"/>
+        <result column="custom_list_id" property="customListId" jdbcType="BIGINT"/>
+        <result column="html_data" property="htmlData" jdbcType="VARCHAR"/>
+        <result column="upload_time" property="uploadTime" jdbcType="TIMESTAMP"/>
+        <result column="corrector_time" property="correctorTime" jdbcType="TIMESTAMP"/>
+        <result column="question_type" property="questionType" jdbcType="VARCHAR"/>
+        <result column="struct_id" property="structId" jdbcType="INTEGER"/>
+        <result column="group_id" property="groupId" jdbcType="BIGINT"/>
+        <result column="group_name" property="groupName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="flowTurnExercise" type="com.noriental.praxissvr.answer.bean.FlowTurnList">
+        <id column="org_id" property="orgId" jdbcType="BIGINT"/>
+        <result column="student_id" property="studentId" jdbcType="BIGINT"/>
+        <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
+        <result column="question_id" property="questionId" jdbcType="BIGINT"/>
+        <result column="question_type" property="questionType" jdbcType="VARCHAR"/>
+        <result column="exercise_source" property="exerciseSource" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="picture_source" property="pictureSource" jdbcType="INTEGER"/>
+        <result column="sub_exercise_source" property="subExerciseSource" jdbcType="INTEGER"/>
+        <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP"/>
+        <result column="corrector_id" property="correctorId" jdbcType="BIGINT"/>
+        <result column="corrector_time" property="correctorTime" jdbcType="TIMESTAMP"/>
+        <result column="parent_question_id" property="parentQuestionId" jdbcType="BIGINT"/>
+        <result column="resource_id" property="resourceId" jdbcType="BIGINT"/>
+        <result column="postil_teacher_date" property="postilTeacherDate" jdbcType="TIMESTAMP"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="struct_id" property="structId" jdbcType="BIGINT"/>
+        <result column="class_id" property="classId" jdbcType="BIGINT"/>
+        <result column="year" property="year" jdbcType="INTEGER"/>
+        <result column="result" property="result" jdbcType="VARCHAR"/>
+        <result column="correct_role" property="correctorRole" jdbcType="VARCHAR"/>
+        <result column="intell_postil" property="intellPostil" jdbcType="VARCHAR"/>
+        <result column="postil" property="postilTeacher" jdbcType="VARCHAR"/>
+        <result column="answer" property="submitAnswer" jdbcType="VARCHAR"/>
+        <result column="intell_result" property="intellResult" jdbcType="VARCHAR"/>
+        <result column="postil_svg_flag" property="isNew" jdbcType="INTEGER"/>
+        <result column="intell_postil_status" property="intellPostilStatus" jdbcType="INTEGER"/>
+        <result column="audio_result" property="audioResult" jdbcType="VARCHAR"/>
+
+        <result column="publish_id" property="publishId" jdbcType="BIGINT"/>
+        <result column="link_id" property="linkId" jdbcType="BIGINT"/>
+
+    </resultMap>
+
+
+    <select id="count" resultType="java.lang.Integer"   parameterType="com.noriental.praxissvr.answer.request.FlowTurnCorrectRequest">
+        select count(1) from entity_respackage_publish
+        where creator_id=#{query.creatorId}
+        <if test="query.publishType > 0">
+            and publish_type = #{query.publishType}
+        </if>
+        <if test="query.startTime != null">
+            and create_time >= #{query.startTime}
+        </if>
+        <if test="query.endTime != null">
+            and #{query.endTime} >= create_time
+        </if>
+        <if test="query.chapterId > 0">
+            and chapter_id = #{query.chapterId}
+        </if>
+        <if test="year != 0">
+            and year =#{year}
+        </if>
+        <if test="query.classId > 0">
+            and class_id = #{query.classId}
+        </if>
+        <if test="query.firstChapterId > 0">
+            and first_chapter_id = #{query.firstChapterId}
+        </if>
+        <if test="query.secondChapterId > 0">
+            and second_chapter_id = #{query.secondChapterId}
+        </if>
+        <if test="query.thirdChapterId > 0">
+            and thrid_chapter_id = #{query.thirdChapterId}
+        </if>
+    </select>
+
+    <!--<select id="findFlowTurn" resultMap="flowTurnParam"  parameterType="com.noriental.praxissvr.answer.request.FlowTurnCorrectRequest" resultType="com.noriental.praxissvr.answer.bean.FlowTurn">
+        select question_id,question_type,html_data,upload_time,flag,sum(num) num,deadline from (
+        select q.id question_id,q.question_type,q.html_data,q.upload_time,3 as flag,(select deadline from neworiental_data.entity_pigai_deadline limit 1) as deadline,
+        count(p.question_id) as num
+        from neworiental_v3.entity_question q
+        inner join neworiental_data.entity_pigai_circulation p on q.id = p.question_id
+        and flag = 3
+        <if test="systemId != null">
+            and creator_id = #{systemId}
+        </if>
+
+        <if test="questionList != null  and  questionList.size() != 0  ">
+            and question_id in
+            <foreach item="id" index="index" collection="questionList"  open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+       group by question_id
+
+        UNION
+        select q.id question_id,q.question_type,q.html_data,q.upload_time,4 as flag,(select deadline from neworiental_data.entity_pigai_deadline limit 1) as deadline,
+        count(p.question_id) as num
+        from neworiental_v3.entity_question q
+        inner join neworiental_data.entity_pigai_circulation p on q.id = p.question_id
+        and isnull(p.flag) = 1
+        <if test="systemId != null">
+            and creator_id = #{systemId}
+        </if>
+        <if test="questionList != null  and  questionList.size() != 0  ">
+            and question_id in
+            <foreach item="id" index="index" collection="questionList"  open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        group by question_id
+        ) T group by question_id,flag
+        <if test="sort_type==1">
+            order by upload_time
+            <if test="sort_value==1">
+                asc
+            </if>
+            <if test="sort_value==2">
+                desc
+            </if>
+        </if>
+        <if test="sort_type==2">
+            order by num
+            <if test="sort_value==1">
+                asc
+            </if>
+            <if test="sort_value==2">
+                desc
+            </if>
+        </if>
+    </select>-->
+
+    <!--<select id="findFlowTurn" resultMap="flowTurnParam"  parameterType="com.noriental.praxissvr.answer.request.FlowTurnCorrectRequest" resultType="com.noriental.praxissvr.answer.bean.FlowTurn">
+        select question_id,question_type,html_data,upload_time,flag,
+        <if test="is_corrected != null and is_corrected == '3'.toString()">
+            corrector_time,
+        </if>
+        sum(num) num,deadline,intelligent,custom_list_id,group_id,group_name,struct_id,creator_id as system_id from (
+        select q.id question_id,q.question_type,q.html_data,q.upload_time,
+        <if test="is_corrected != null and is_corrected == '3'.toString()">
+            3 as flag,
+            p.corrector_time,
+            p.create_time,DATE_FORMAT(p.create_time,"%Y-%m-%d") as createTime,
+        </if>
+        <if test="is_corrected != null and is_corrected == '4'.toString()">
+            4 as flag,
+        </if>
+        (select deadline from neworiental_data.entity_pigai_deadline limit 1) as deadline,
+        count(p.question_id) as num,q.intelligent,l.custom_list_id,l.group_id,e.name as group_name,p.struct_id,p.creator_id
+        from neworiental_v3.entity_question q
+        left join neworiental_v3.link_custom_question_resource l on q.id = l.question_id and l.resource_status = 1
+        left join neworiental_v3.entity_custom_list_group e on e.id = l.group_id and e.is_delete = 0
+        inner join neworiental_data.entity_pigai_circulation p on q.id = p.question_id
+        <if test="is_corrected != null and is_corrected == '3'.toString()">
+            and p.flag = #{is_corrected}
+        </if>
+        <if test="is_corrected != null and is_corrected == '4'.toString()">
+            and isnull(p.flag) = 1
+            and DATE_FORMAT(p.create_time,"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+        </if>
+        <if test="systemId != null">
+            and p.creator_id = #{systemId}
+        </if>
+
+        <if test="questionList != null  and  questionList.size() != 0  ">
+            and p.question_id in
+            <foreach item="id" index="index" collection="questionList"  open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+       group by
+        p.question_id
+        ) T group by question_id,flag
+        <if test="sort_type==1">
+            order by upload_time
+            <if test="sort_value==1">
+                asc
+            </if>
+            <if test="sort_value==2">
+                desc
+            </if>
+        </if>
+        <if test="sort_type==2">
+            order by num
+            <if test="sort_value==1">
+                asc
+            </if>
+            <if test="sort_value==2">
+                desc
+            </if>
+        </if>
+        limit #{page},#{limits}
+    </select>-->
+
+    <select id="findFlowTurn" resultMap="flowTurnParam"  parameterType="com.noriental.praxissvr.answer.request.FlowTurnCorrectRequest" resultType="com.noriental.praxissvr.answer.bean.FlowTurn">
+        select question_id,parent_question_id,flag,
+        <if test="is_corrected != null and is_corrected == '3'.toString()">
+            corrector_time,
+        </if>
+        deadline,custom_list_id,group_id,group_name,struct_id,system_id,
+        count_options,difficulty,high_qual,mastery,multi_score_answer,question_type,right_option,is_single,state,qr_id,
+        count_topic,subject_id,update_time,upload_time,upload_id,upload_src,new_format,question_group,answer_num,
+        question_type_id,visible,org_id,org_type,source,intelligent,json_data,html_data,json_map
+        from (
+                select p.question_id,p.parent_question_id,
+                <if test="is_corrected != null and is_corrected == '3'.toString()">
+                    3 as flag,
+                    p.corrector_time,
+                    p.create_time as createTime,
+                </if>
+                <if test="is_corrected != null and is_corrected == '4'.toString()">
+                    4 as flag,
+                </if>
+                (select deadline from neworiental_data.entity_pigai_deadline limit 1) as deadline,
+                l.custom_list_id,l.group_id,e.name as group_name,p.struct_id,p.creator_id as system_id,
+                q.count_options,q.difficulty,q.high_qual,q.mastery,q.multi_score_answer,q.question_type,q.right_option,q.is_single,q.state,q.qr_id,
+                q.count_topic,q.subject_id,q.update_time,q.upload_time,q.upload_id,q.upload_src,q.new_format,q.question_group,q.answer_num,
+                q.question_type_id,q.visible,q.org_id,q.org_type,q.source,q.intelligent,q.json_data,q.html_data,q.json_map
+                from neworiental_v3.entity_question q
+                inner join neworiental_data.entity_pigai_circulation p on q.id = p.parent_question_id and isnull(p.parent_question_id) = 0
+                <if test="is_corrected != null and is_corrected == '3'.toString()">
+                    and p.flag = #{is_corrected}
+                </if>
+                <if test="is_corrected != null and is_corrected == '4'.toString()">
+                    and isnull(p.flag) = 1
+                    and DATE_FORMAT((if(exercise_source in (6,7,8),p.promulgate,p.submit_time)),"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+                </if>
+                <if test="systemId != null">
+                    and p.creator_id = #{systemId}
+                </if>
+
+                <if test="questionList != null  and  questionList.size() != 0  ">
+                    and p.parent_question_id in
+                    <foreach item="id" index="index" collection="questionList"  open="(" separator="," close=")">
+                        #{id}
+                    </foreach>
+                </if>
+                left join neworiental_v3.link_custom_question_resource l on p.parent_question_id = l.question_id and l.resource_status = 1
+                left join neworiental_v3.entity_custom_list_group e on e.id = l.group_id and e.is_delete = 0
+               group by p.parent_question_id
+          union
+                select p.question_id,p.parent_question_id,
+                <if test="is_corrected != null and is_corrected == '3'.toString()">
+                    3 as flag,
+                    p.corrector_time,
+                    p.create_time as createTime,
+                </if>
+                <if test="is_corrected != null and is_corrected == '4'.toString()">
+                    4 as flag,
+                </if>
+                (select deadline from neworiental_data.entity_pigai_deadline limit 1) as deadline,
+                l.custom_list_id,l.group_id,e.name as group_name,p.struct_id,p.creator_id as system_id,
+                q.count_options,q.difficulty,q.high_qual,q.mastery,q.multi_score_answer,q.question_type,q.right_option,q.is_single,q.state,q.qr_id,
+                q.count_topic,q.subject_id,q.update_time,q.upload_time,q.upload_id,q.upload_src,q.new_format,q.question_group,q.answer_num,
+                q.question_type_id,q.visible,q.org_id,q.org_type,q.source,q.intelligent,q.json_data,q.html_data,q.json_map
+                from neworiental_v3.entity_question q
+                inner join neworiental_data.entity_pigai_circulation p on q.id = p.question_id and isnull(p.parent_question_id) = 1
+                <if test="is_corrected != null and is_corrected == '3'.toString()">
+                    and p.flag = #{is_corrected}
+                </if>
+                <if test="is_corrected != null and is_corrected == '4'.toString()">
+                    and isnull(p.flag) = 1
+                    and DATE_FORMAT((if(exercise_source in (6,7,8),p.promulgate,p.submit_time)),"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+                </if>
+                <if test="systemId != null">
+                    and p.creator_id = #{systemId}
+                </if>
+
+                <if test="questionList != null  and  questionList.size() != 0  ">
+                    and p.question_id in
+                    <foreach item="id" index="index" collection="questionList"  open="(" separator="," close=")">
+                        #{id}
+                    </foreach>
+                </if>
+                left join neworiental_v3.link_custom_question_resource l on p.question_id = l.question_id and l.resource_status = 1
+                left join neworiental_v3.entity_custom_list_group e on e.id = l.group_id and e.is_delete = 0
+                group by p.question_id
+
+        ) T group by question_id,flag
+        <if test="sort_type==1">
+            order by upload_time
+            <if test="sort_value==1">
+                asc
+            </if>
+            <if test="sort_value==2">
+                desc
+            </if>
+        </if>
+        <!--<if test="sort_type==2">
+            order by num
+            <if test="sort_value==1">
+                asc
+            </if>
+            <if test="sort_value==2">
+                desc
+            </if>
+        </if>-->
+        limit #{page},#{limits}
+    </select>
+
+    <!--该题未批人数-->
+    <select id="findFlowTurnListNum" parameterType="com.noriental.praxissvr.answer.bean.FlowTurn" resultType="int">
+        <if test="parentQuestionId != null">
+            select count(parent_question_id) from (
+        </if>
+            select
+                <if test="parentQuestionId != null">
+                    count(parent_question_id) as parent_question_id
+                </if>
+                <if test="questionId != null">
+                    count(question_id)
+                </if>
+            from neworiental_data.entity_pigai_circulation
+            where 1 = 1
+                <if test="parentQuestionId != null">
+                    and parent_question_id = #{parentQuestionId}
+                </if>
+                <if test="questionId != null">
+                    and question_id = #{questionId}
+                </if>
+                <if test="systemId != null">
+                    and creator_id = #{systemId}
+                </if>
+                <if test="flag != null and flag == '3'.toString()">
+                    and flag = 3
+                </if>
+                <if test="flag != null and flag == '4'.toString()">
+                    and isnull(flag) = 1
+                    and DATE_FORMAT((if(exercise_source in (6,7,8),promulgate,submit_time)),"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+                </if>
+            <if test="parentQuestionId != null">
+                group by student_id
+            </if>
+        <if test="parentQuestionId != null">
+            ) T
+        </if>
+    </select>
+
+    <!-- 未批/已批 该题总人数 -->
+    <select id="findFlowTurnListTotalNum"  parameterType="com.noriental.praxissvr.answer.bean.FlowTurn" resultType="int">
+        <if test="parentQuestionId != null">
+            select count(student_id) from (
+        </if>
+            select
+                <if test="parentQuestionId != null">
+                    count(distinct(student_id)) as student_id
+                </if>
+                <if test="questionId != null">
+                    count(distinct(student_id))
+                </if>
+            from neworiental_data.entity_pigai_circulation
+            where 1 = 1
+                <if test="parentQuestionId != null">
+                    and parent_question_id = #{parentQuestionId}
+                </if>
+                <if test="questionId != null">
+                    and question_id = #{questionId}
+                </if>
+                <if test="systemId != null">
+                    and creator_id = #{systemId}
+                </if>
+                <if test="flag != null and flag == '4'.toString()">
+                    and DATE_FORMAT((if(exercise_source in (6,7,8),promulgate,submit_time)),"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+                </if>
+            <if test="parentQuestionId != null">
+                group by student_id
+            </if>
+        <if test="parentQuestionId != null">
+            ) T
+        </if>
+
+        <!--select count(if(isnull(parent_question_id) = 0,parent_question_id,question_id)) as totalNum
+        from neworiental_data.entity_pigai_circulation
+        where 1 = 1
+        <if test="questionId != null">
+            and if(isnull(parent_question_id) = 0,parent_question_id,question_id) = #{questionId}
+        </if>
+        <if test="systemId != null">
+            and creator_id = #{systemId}
+        </if>
+        <if test="flag != null and flag == '4'.toString()">
+            and DATE_FORMAT(create_time,"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+        </if>-->
+    </select>
+
+    <!--  该题总人数 -->
+    <select id="findFlowTurnTotalNum"  parameterType="com.noriental.praxissvr.answer.bean.FlowTurn" resultType="int">
+        <if test="parentQuestionId != null">
+            select count(student_id) from (
+        </if>
+            select
+            <if test="parentQuestionId != null">
+                count(distinct(student_id)) as student_id
+            </if>
+            <if test="questionId != null">
+                count(question_id)
+            </if>
+            from neworiental_data.entity_pigai_circulation
+            where
+            DATE_FORMAT((if(exercise_source in (6,7,8),promulgate,submit_time)),"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+            <if test="parentQuestionId != null">
+                and parent_question_id = #{parentQuestionId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="systemId != null">
+                and creator_id = #{systemId}
+            </if>
+            <if test="parentQuestionId != null">
+                group by student_id
+            </if>
+        <if test="parentQuestionId != null">
+            ) T
+        </if>
+    </select>
+
+
+    <select id="findFlowTurnNum" parameterType="com.noriental.praxissvr.answer.bean.FlowTurn" resultType="int">
+        <if test="parentQuestionId != null">
+            select count(parent_question_id) from (
+        </if>
+        select
+        <if test="parentQuestionId != null">
+            count(parent_question_id) as parent_question_id
+        </if>
+        <if test="questionId != null">
+            count(question_id)
+        </if>
+        from neworiental_data.entity_pigai_circulation
+        where
+        isnull(flag) = 1
+        and DATE_FORMAT((if(exercise_source in (6,7,8),promulgate,submit_time)),"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+        <if test="parentQuestionId != null">
+            and parent_question_id = #{parentQuestionId}
+        </if>
+        <if test="questionId != null">
+            and question_id = #{questionId}
+        </if>
+        <if test="systemId != null">
+            and creator_id = #{systemId}
+        </if>
+        <if test="parentQuestionId != null">
+            group by student_id
+        </if>
+        <if test="parentQuestionId != null">
+            ) T
+        </if>
+    </select>
+
+    <select id="findFlowTurnDeadline" resultType="com.noriental.praxissvr.answer.bean.FlowTurn">
+        select deadline from neworiental_data.entity_pigai_deadline limit 1
+    </select>
+
+    <select id="findFlowTurnTotalCount"  parameterType="com.noriental.praxissvr.answer.bean.FlowTurn" resultType="java.lang.Integer">
+        select sum(totalCount) as totalCount from (
+            select count(distinct(p.parent_question_id)) totalCount
+            from neworiental_data.entity_pigai_circulation p
+            where isnull(p.parent_question_id) = 0
+            <if test="is_corrected != null and is_corrected == '3'.toString()">
+                and p.flag = #{is_corrected}
+            </if>
+            <if test="is_corrected != null and is_corrected == '4'.toString()">
+                and isnull(p.flag) = 1
+                and DATE_FORMAT((if(exercise_source in (6,7,8),p.promulgate,p.submit_time)),"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+            </if>
+            <if test="systemId != null">
+                and p.creator_id = #{systemId}
+            </if>
+            <if test="questionList != null  and  questionList.size() != 0  ">
+                and p.parent_question_id in
+                <foreach item="id" index="index" collection="questionList"  open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        union
+            select count(distinct(p.question_id)) totalCount
+            from neworiental_data.entity_pigai_circulation p
+            where isnull(p.parent_question_id) = 1
+        <if test="is_corrected != null and is_corrected == '3'.toString()">
+                and p.flag = #{is_corrected}
+            </if>
+            <if test="is_corrected != null and is_corrected == '4'.toString()">
+                and isnull(p.flag) = 1
+                and DATE_FORMAT((if(exercise_source in (6,7,8),p.promulgate,p.submit_time)),"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+            </if>
+            <if test="systemId != null">
+                and p.creator_id = #{systemId}
+            </if>
+            <if test="questionList != null  and  questionList.size() != 0  ">
+                and p.question_id in
+                <foreach item="id" index="index" collection="questionList"  open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        ) T
+    </select>
+
+    <select id="selStuQuesAnswOnBatch"  parameterType="com.noriental.praxissvr.answer.bean.FlowTurn"  resultType="com.noriental.praxissvr.answer.response.FlowTurnListOut" resultMap="flowTurnExercise">
+        select
+            e.org_id, e.student_id,e.parent_question_id,e.question_id,
+            e.question_type,e.struct_id, e.exercise_source, e.create_time as createTime, e.picture_source,e.submit_time,
+            e.corrector_id,e.corrector_time,e.parent_question_id,e.resource_id,
+            e.last_update_time,e.class_id,e.`year`,e.sub_exercise_source,e.result,e.correct_role,e.postil,answer,
+            e.postil_svg_flag,e.audio_result,e.answer,
+            if(isnull(e.flag) = 1,4,e.flag) as flag,
+            e.intell_postil,e.intell_result,e.intell_postil_status,
+            l.publish_id,l.id as link_id,
+            q.intelligent
+        from neworiental_data.entity_pigai_circulation e
+        inner join neworiental_v3.link_respackage_publish_resource l on e.resource_id = l.id
+        inner join  neworiental_v3.entity_question q on 1 = 1
+        <if test="parentQuestionId != null">
+           and q.parent_question_id = e.parent_question_id and q.id = e.question_id
+        </if>
+        <if test="questionId != null and parentQuestionId == null">
+            and q.id = e.question_id
+        </if>
+            and DATE_FORMAT((if(exercise_source in (6,7,8),e.promulgate,e.submit_time)),"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+            <if test="parentQuestionId != null">
+                and e.parent_question_id = #{parentQuestionId}
+            </if>
+            <if test="questionId != null and parentQuestionId == null">
+                and e.question_id = #{questionId}
+            </if>
+            <if test="systemId != null">
+                and e.creator_id = #{systemId}
+            </if>
+            <!--<if test="studentId != null">
+                and e.student_id = #{studentId}
+            </if>-->
+    </select>
+
+
+    <update id="updateFlowTurnCorrectState" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+        update neworiental_data.entity_pigai_circulation
+        <set>
+            <if test="studentName != null">
+                student_name = #{studentName,jdbcType=VARCHAR},
+            </if>
+            <if test="pictureSource != null">
+                picture_source = #{pictureSource,jdbcType=INTEGER},
+            </if>
+            <if test="correctorId != null">
+                corrector_id = #{correctorId},
+            </if>
+            <if test="correctorTime != null">
+                corrector_time = #{correctorTime},
+            </if>
+            <if test="lastUpdateTime != null">
+                last_update_time = #{lastUpdateTime},
+            </if>
+            <if test="postilTeacherDate != null">
+                postil_teacher_date = #{postilTeacherDate},
+            </if>
+            <if test="redoStatus != null">
+                redo_status = #{redoStatus},
+            </if>
+            <!--新增 -->
+            <if test="subExerciseSource !=null">
+                sub_exercise_source=#{subExerciseSource},
+            </if>
+            <if test="result !=null">
+                result=#{result},
+            </if>
+            <if test="correctorRole !=null">
+                correct_role=#{correctorRole},
+            </if>
+            <if test="postilTeacher !=null">
+                postil=#{postilTeacher},
+            </if>
+            <if test="submitAnswer !=null">
+                answer=#{submitAnswer},
+            </if>
+            <if test="intellPostil!=null ">
+                intell_postil=#{intellPostil},
+            </if>
+            <if test="intellPostilStatus!=null">
+                intell_postil_status=#{intellPostilStatus},
+            </if>
+            <if test="intellResult!=null">
+                intell_result=#{intellResult},
+            </if>
+            <if test="intellResource!=null">
+                intell_resource=#{intellResource},
+            </if>
+            <if test="audioResult!=null ">
+                audio_result =#{audioResult},
+            </if>
+            <if test="subExerciseSource!=null ">
+                sub_exercise_source =#{subExerciseSource},
+            </if>
+            <if test="submitTime != null">
+                submit_time = #{submitTime},
+            </if>
+            <if test="isNew!=null">
+                postil_svg_flag=#{isNew},
+            </if>
+            <if test="flag!=null">
+                flag=#{flag},
+            </if>
+            <if test="extraFlag!=null">
+                extra_flag=#{extraFlag,jdbcType=INTEGER}
+            </if>
+        </set>
+        <where>
+            1=1
+            <if test="studentId != null">
+                and student_id = #{studentId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="exerciseSource != null">
+                and exercise_source = #{exerciseSource}
+            </if>
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+            <if test="parentQuestionId != null">
+                and parent_question_id = #{parentQuestionId}
+            </if>
+            <if test="redoSource != null">
+                and redo_source = #{redoSource}
+            </if>
+            <if test="year != null">
+                and year = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+        </where>
+
+    </update>
+
+
+
+    <update id="updateFlowTurnCorrectStateList" parameterType="java.util.List" statementType="STATEMENT">
+        <foreach collection="list" item="item" separator=";">
+            update neworiental_data.entity_pigai_circulation
+            <set>
+                <if test="item.result!=null ">
+                    result ='${item.result}',
+                </if>
+                <if test="item.correctorId!=null ">
+                    corrector_id =${item.correctorId},
+                </if>
+                <if test="item.correctorRole!=null ">
+                    correct_role ='${item.correctorRole}',
+                </if>
+                <if test="item.correctorTime!=null">
+                    corrector_time= now(),
+                </if>
+                <if test="item.lastUpdateTime!=null ">
+                    last_update_time =now(),
+                </if>
+
+                <if test="item.intellPostil!=null ">
+                    intell_postil='${item.intellPostil}',
+                </if>
+                <if test="item.intellPostilStatus!=null">
+                    intell_postil_status=${item.intellPostilStatus},
+                </if>
+                <if test="item.intellResult!=null">
+                    intell_result='${item.intellResult}',
+                </if>
+                <if test="item.intellResource!=null">
+                    intell_resource='${item.intellResource}',
+                </if>
+
+                <if test="item.flag!=null ">
+                    flag =${item.flag},
+                </if>
+                <if test="item.extraFlag!=null ">
+                    extra_flag =${item.extraFlag},
+                </if>
+            </set>
+            <where>
+                <if test="item.studentId != null">
+                    student_id = ${item.studentId}
+                </if>
+                <if test="item.exerciseSource != null">
+                    and exercise_source = ${item.exerciseSource}
+                </if>
+                <if test="item.resourceId != null">
+                    and resource_id = ${item.resourceId}
+                </if>
+
+                <if test="item.questionId != null">
+                    and question_id = ${item.questionId}
+                </if>
+                <if test="item.year != null">
+                    and year = ${item.year}
+                </if>
+                <if test="item.classId != null">
+                    and class_id = ${item.classId}
+                </if>
+            </where>
+        </foreach>
+    </update>
+
+
+    <select id="findFlowTurnExpire"  resultType="java.lang.Integer">
+        select TIMESTAMPDIFF(SECOND,
+        SYSDATE(),
+        (select deadline from neworiental_data.entity_pigai_deadline limit 1)
+        ) * 1000 as deadline
+    </select>
+
+    <select id="findQuestionUploadId" parameterType="map" resultType="java.lang.Long">
+        select upload_id
+        from neworiental_v3.entity_question
+        where id = #{questionId}
+    </select>
+
+    <select id="selectFIsExist" parameterType="com.noriental.praxissvr.answer.bean.FlowTurn" resultType="int" >
+        select if(count(id) > 0,1,0) as count
+        from neworiental_data.entity_pigai_circulation
+        where 1 = 1
+        <if test="questionId != null">
+            and parent_question_id = #{questionId}
+        </if>
+        <if test="systemId != null">
+            and creator_id = #{systemId}
+        </if>
+    </select>
+
+
+    <select id="selectWhiteSchool" resultType="String">
+          select id from neworiental_v3.entity_public_school where name in(
+            '枣庄东方国际学校',
+            '利川市思源实验学校',
+            '阜南县王店孜乡亲情学校',
+            '盐城景山中学',
+            '阜南新村镇露荷中学',
+            '长垣县长城中学',
+            '山东省滨州市滨城区第六中学',
+            '吴堡中学',
+            '彭水县思源实验学校',
+            '黔西南州崇文中学',
+            '莱芜高新实验学校',
+            '夏津县第一中学',
+            '莱芜莲河学校',
+            '临沂市第十四中学',
+            '临沂市高新实验学校',
+            '鄂尔多斯东胜区实验中学',
+            '张北德智中学',
+            '大庆实验中学',
+            '山东聊城东昌完全中学',
+            '盘锦市大洼区第一初级中学',
+            '海盐县实验中学',
+            '涉县鹿头中学',
+            '新泰市新甫中学',
+            '德州夏津双语实验小学',
+            '藁城区九门回族中学',
+            '邯郸市磁县朝阳中学',
+            '山东省垦利实验中学'
+            )
+
+    </select>
+
+
+    <!--<select id="findQuestionIdList"  parameterType="com.noriental.praxissvr.answer.bean.FlowTurn"  resultType="com.noriental.praxissvr.answer.bean.FlowTurn" resultMap="flowTurnParam">
+        select p.question_id,p.parent_question_id,
+        <if test="is_corrected != null and is_corrected == '3'.toString()">
+            3 as flag,
+            p.corrector_time,
+            p.create_time,DATE_FORMAT(p.create_time,"%Y-%m-%d") as createTime,
+        </if>
+        <if test="is_corrected != null and is_corrected == '4'.toString()">
+            4 as flag,
+        </if>
+        (select deadline from neworiental_data.entity_pigai_deadline limit 1) as deadline,
+        l.custom_list_id,l.group_id,e.name as group_name,p.struct_id,p.creator_id as system_id,
+        q.count_options,q.difficulty,q.high_qual,q.mastery,q.multi_score_answer,q.question_type,q.right_option,q.is_single,q.state,q.qr_id,
+        q.count_topic,q.subject_id,q.update_time,q.upload_time,q.upload_id,q.upload_src,q.new_format,q.question_group,q.answer_num,
+        q.question_type_id,q.visible,q.org_id,q.org_type,q.source,q.intelligent,q.json_data,q.html_data,q.json_map
+        from neworiental_v3.entity_question q
+        inner join neworiental_data.entity_pigai_circulation p on q.id = p.parent_question_id and isnull(p.parent_question_id) = 0
+        <if test="is_corrected != null and is_corrected == '3'.toString()">
+            and p.flag = #{is_corrected}
+        </if>
+        <if test="is_corrected != null and is_corrected == '4'.toString()">
+            and isnull(p.flag) = 1
+            and DATE_FORMAT(p.create_time,"%Y-%m-%d") = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL -1 DAY),"%Y-%m-%d")
+        </if>
+        <if test="systemId != null">
+            and p.creator_id = #{systemId}
+        </if>
+
+        <if test="parent_question_id != null">
+            and p.parent_question_id = #{parentQuestionId}
+        </if>
+        <if test="studentId != null">
+            and p.student_id = #{studentId}
+        </if>
+        left join neworiental_v3.link_custom_question_resource l on p.parent_question_id = l.question_id and l.resource_status = 1
+        left join neworiental_v3.entity_custom_list_group e on e.id = l.group_id and e.is_delete = 0
+        group by p.parent_question_id
+    </select>-->
+</mapper>
+
+

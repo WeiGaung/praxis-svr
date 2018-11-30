@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.statis.statismapper.TeacherWebWrongQuesMapper">
+    <resultMap id="dataWrongQues1" type="com.noriental.praxissvr.statis.bean.ClassWrongQuesCount">
+        <result column="question_id" property="questionId" jdbcType="BIGINT"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="wrong_count" property="wrongCount" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="findClassWrongQuesCount" parameterType="com.noriental.praxissvr.statis.bean.DataWrongQuesVo" resultMap="dataWrongQues1">
+        SELECT * from
+        (
+        SELECT part.question_id,COUNT(DISTINCT part.system_id) as wrong_count,max(part.last_update_time) last_update_time FROM
+        (
+        SELECT question_id,system_id,last_update_time from entity_data_wrong_ques q
+        where
+        1=1
+        <if test="knowledgeIdList != null and knowledgeIdList.size()>0">
+            and EXISTS (
+            SELECT k.id from link_data_wrong_knowledge k WHERE k.knowledge_id in
+            <foreach item="item" index="index" collection="knowledgeIdList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            and knowledge_level=#{knowledgeLevel} and q.question_id = k.question_id
+            )
+        </if>
+        and q.class_id in
+        <foreach item="item" index="index" collection="classIdList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="difficulty != null">
+            and q.difficulty = #{difficulty}
+        </if>
+        <if test="sources != null">
+            and q.source in (#{sources})
+        </if>
+        <if test="question_type != null">
+            <if test="question_type==-1">/*单选题*/
+                and q.question_type = 1 and answer_num = 1
+            </if>
+            <if test="question_type == -2">/*多选题*/
+                and q.question_type = 1 and answer_num > 1
+            </if>
+            <if test="question_type &gt; 1">/*非选择题*/
+                and q.question_type = #{question_type}
+            </if>
+
+        </if>
+        <if test="subject_id != null">
+            and q.subject_id = #{subject_id}
+        </if>
+       <!-- <if test="schoolIds != null">
+            and q.school_id = #{school_id}
+        </if>-->
+        and q.school_id in
+        <foreach item="item" index="index" collection="schoolIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="teacherId != null">
+            and q.teacher_id = #{teacherId}
+        </if>
+
+        ) part GROUP BY part.question_id
+        ) sort
+        <if test="sortType != null and sortType==1">
+            ORDER BY sort.wrong_count desc
+        </if>
+        <if test="sortType != null and sortType==2">
+            ORDER BY sort.wrong_count
+        </if>
+        <if test="sortType != null and sortType==3">
+            ORDER BY sort.last_update_time desc
+        </if>
+        <if test="sortType != null and sortType==4">
+            ORDER BY sort.last_update_time
+        </if>
+    </select>
+
+
+    <resultMap id="dataKnowledge" type="com.noriental.praxissvr.statis.bean.KnowledgeVo">
+        <result column="knowledge_id" property="knowledgeId" jdbcType="BIGINT"/>
+        <result column="knowledge_level" property="knowledgeLevel" jdbcType="INTEGER"/>
+        <result column="knowledge_name" property="knowledgeName" jdbcType="VARCHAR"/>
+        <result column="knowledge_pra_id" property="praKnowledgeId" jdbcType="BIGINT"/>
+    </resultMap>
+    <select id="findKnowledgeList" resultMap="dataKnowledge">
+        select * from (
+        SELECT DISTINCT t.knowledge_id,t.knowledge_level,t.knowledge_name,t.knowledge_pra_id
+        from entity_data_wrong_ques_know t
+        WHERE t.class_id in
+        <foreach item="item" index="index" collection="classIdList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and t.subject_id =#{subjectId}
+        and t.knowledge_level = #{knowledgeLevel}
+        and t.knowledge_pra_id =#{parKnowledgeId}
+        ) t
+    </select>
+
+
+    <select id="findStudentIds" parameterType="com.noriental.praxissvr.statis.bean.DataWrongQuesVo" resultType="Long">
+
+        SELECT part.system_id FROM
+        (
+        SELECT question_id,system_id from entity_data_wrong_ques q
+        where
+        1=1
+        <if test="knowledgeIdList != null and knowledgeIdList.size()>0">
+            and EXISTS (
+            SELECT k.id from link_data_wrong_knowledge k WHERE k.knowledge_id in
+            <foreach item="item" index="index" collection="knowledgeIdList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            and knowledge_level=#{knowledgeLevel} and q.question_id = k.question_id
+            )
+        </if>
+        and q.class_id in
+        <foreach item="item" index="index" collection="classIdList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="difficulty != null">
+            and q.difficulty = #{difficulty}
+        </if>
+        <if test="sources != null">
+            and q.source in (#{sources})
+        </if>
+        <if test="question_type != null">
+            <if test="question_type==-1">/*单选题*/
+                and q.question_type = 1 and answer_num = 1
+            </if>
+            <if test="question_type == -2">/*多选题*/
+                and q.question_type = 1 and answer_num > 1
+            </if>
+            <if test="question_type &gt; 1">/*非选择题*/
+                and q.question_type = #{question_type}
+            </if>
+
+        </if>
+        <if test="subject_id != null">
+            and q.subject_id = #{subject_id}
+        </if>
+        and q.school_id in
+        <foreach item="item" index="index" collection="schoolIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="teacherId != null">
+            and q.teacher_id = #{teacherId}
+        </if>
+        <if test="question_id != null">
+            and q.question_id = #{question_id}
+        </if>
+        GROUP BY question_id,system_id
+        ) part
+
+
+    </select>
+
+</mapper>

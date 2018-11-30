@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:c="http://www.springframework.org/schema/c"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    <!-- New version -->
+    <util:properties id="hostProp" location="classpath:zk.properties"/>
+
+    <!-- Config Profile -->
+    <bean id="configProfile" class="com.dangdang.config.service.zookeeper.ZookeeperConfigProfile">
+        <constructor-arg name="connectStr" value="#{hostProp['zk.address']}"/>
+        <constructor-arg name="rootNode" value="/xdfapp/praxis-svr"/>
+        <constructor-arg name="version" value="#{hostProp['zk.version']}"/>
+    </bean>
+    <bean id="zookeeperSources" class="com.dangdang.config.service.support.spring.ConfigGroupSourceFactory"
+          factory-method="create">
+        <constructor-arg name="configGroups">
+            <list>
+                <bean class="com.dangdang.config.service.zookeeper.ZookeeperConfigGroup"
+                      c:configProfile-ref="configProfile" c:node="change"/>
+                <bean class="com.dangdang.config.service.zookeeper.ZookeeperConfigGroup"
+                      c:configProfile-ref="configProfile" c:node="unchange"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="order" value="1"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="propertySources" ref="zookeeperSources"/>
+    </bean>
+
+    <!-- dubbo监控，切勿删除 -->
+    <dubbo:monitor protocol="registry"/>
+
+    <!-- 提供方应用信息，用于计算依赖关系 -->
+    <dubbo:application name="praxis-svr"  />
+
+    <!-- 使用multicast广播注册中心暴露服务地址 -->
+    <dubbo:registry address="${dubbo.registry.address}" check="false"/>
+
+    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="${dubbo.protocol.port}" />
+
+    <dubbo:provider retries="0"/>
+
+    <!-- question service-->
+    <dubbo:reference id="questionService"
+            interface="com.noriental.praxissvr.question.service.QuestionService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+    <dubbo:reference
+            interface="com.noriental.praxissvr.answer.service.StudentExerciseService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+
+    <dubbo:reference id="questionTypeService"
+            interface="com.noriental.praxissvr.question.service.QuestionTypeService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+
+    <dubbo:reference id="statisticsService"
+            interface="com.noriental.praxissvr.question.service.StatisticsService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+    <dubbo:reference id="stuBrushService"
+            interface="com.noriental.praxissvr.brush.service.StuBrushService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+    <dubbo:reference
+            interface="com.noriental.praxissvr.answer.service.StuAnswerService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+
+    <dubbo:reference id="stuRedoService"
+            interface="com.noriental.praxissvr.wrong.service.StuRedoService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+    <dubbo:reference id="stuQuesKnowledgeService"
+            interface="com.noriental.praxissvr.wrong.service.StuQuesKnowledgeService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+    <dubbo:reference id="stuWorkStatisService"
+            interface="com.noriental.praxissvr.statis.service.StuWorkStatisService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+
+    <dubbo:reference id="groupService"
+            interface="com.noriental.praxissvr.question.service.GroupService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+
+    <dubbo:reference id="answerCommonService"
+            interface="com.noriental.praxissvr.answer.service.AnswerCommonService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+
+    <dubbo:reference id="topicQuestionService"
+            interface="com.noriental.praxissvr.question.service.TopicQuestionService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0" />
+
+    <dubbo:reference id="dataWrongQuesService"
+            interface="com.noriental.praxissvr.statis.service.DataWrongQuesService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="15000" retries="0"/>
+    <dubbo:reference id="answerPushService"
+            interface="com.noriental.praxissvr.answer.service.AnswerPushService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+
+
+    <dubbo:reference id="questionFeedbackService"
+                     interface="com.noriental.praxissvr.question.service.QuestionFeedbackService"
+                     protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+    <dubbo:reference id="entrustExerciseService"
+                     interface="com.noriental.praxissvr.question.service.EntrustExerciseService"
+                     protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"/>
+    <dubbo:reference id="chapterService"
+                     interface="com.noriental.adminsvr.service.teaching.ChapterService"
+                     protocol="dubbo" version="${service.dubbo.admin.version}" timeout="5000" retries="0"/>
+    <!--<import resource="applicationContext-aspect.xml"/>-->
+
+    <!--七牛音频转码服务-->
+    <dubbo:reference id="qiniuVoiceService"
+                     interface="com.noriental.extresources.service.QiniuVoiceService" version="test"
+                     check="false" timeout="5000" retries="0" >
+    </dubbo:reference>
+
+
+</beans>

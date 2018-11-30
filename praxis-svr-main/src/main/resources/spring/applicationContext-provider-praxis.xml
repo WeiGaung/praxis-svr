@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd"
+       default-autowire="byName" default-lazy-init="false">
+    <!--解决线上传输数据8M的限制-->
+    <dubbo:provider id="payload" payload="11557050"/>
+    <!-- dubbo监控，切勿删除 -->
+    <dubbo:monitor protocol="registry"/>
+
+    <dubbo:application name="${dubbo.application.name}"/>
+
+    <dubbo:registry address="${dubbo.registry.address}"/>
+
+    <dubbo:provider retries="0"/>
+    <dubbo:consumer retries="0"/>
+
+    <!-- question service-->
+    <dubbo:service
+            interface="com.noriental.praxissvr.question.service.QuestionService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="quiz2.questionService"/>
+
+    <dubbo:service
+            interface="com.noriental.praxissvr.question.service.QuestionTypeService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="quiz2.questionTypeService"/>
+    <dubbo:service
+            interface="com.noriental.praxissvr.brush.service.StuBrushService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="stuBrushService"/>
+
+    <dubbo:service
+            interface="com.noriental.praxissvr.wrong.service.StuRedoService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="stuRedoService"/>
+    <dubbo:service
+            interface="com.noriental.praxissvr.wrong.service.StuQuesKnowledgeService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="stuQuesKnowledgeService"/>
+    <dubbo:service
+            interface="com.noriental.praxissvr.statis.service.StuWorkStatisService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="stuWorkStatisService"/>
+
+    <dubbo:service
+            interface="com.noriental.praxissvr.question.service.GroupService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="quiz2.groupService"/>
+
+    <dubbo:service
+            interface="com.noriental.praxissvr.answer.service.AnswerCommonService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="10000" retries="0"
+            ref="answerCommonService"/>
+
+    <dubbo:service
+            interface="com.noriental.praxissvr.question.service.TopicQuestionService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="topicQuestionService"/>
+
+    <dubbo:service
+            interface="com.noriental.praxissvr.statis.service.DataWrongQuesService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="15000" retries="0"
+            ref="dataWrongQuesService"/>
+    <dubbo:service
+            interface="com.noriental.praxissvr.answer.service.AnswerPushService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="answerPushService"/>
+
+    <dubbo:service
+            interface="com.noriental.praxissvr.question.service.EntrustExerciseService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="entrustExerciseService"/>
+    <dubbo:service
+            interface="com.noriental.praxissvr.question.service.QuestionFeedbackService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="questionFeedbackService"/>
+    <dubbo:service
+            interface="com.noriental.praxissvr.answer.service.StudentExerciseService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="interaction.studentExerciseService"/>
+
+    <dubbo:service
+            interface="com.noriental.praxissvr.resourcegroup.service.ResourceGroupService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="resourceGroupService"/>
+
+    <dubbo:service
+            interface="com.noriental.praxissvr.question.service.QiniuCallBackService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="qiniuCallBackService"/>
+    <dubbo:service
+            interface="com.noriental.praxissvr.wrongQuestion.service.WrongQuestionService"
+            protocol="dubbo" version="${service.dubbo.praxis.version}" timeout="5000" retries="0"
+            ref="wrongQuestionService"/>
+    <dubbo:service interface="com.noriental.praxissvr.question.service.QuestionContinuedService" protocol="dubbo"
+                   version="${service.dubbo.praxis.version}" timeout="5000" retries="0" ref="questionContinuedService"/>
+
+    <dubbo:service interface="com.noriental.praxissvr.answer.service.BatchUpdateCorrectService" protocol="dubbo"
+                   version="${service.dubbo.praxis.version}" timeout="5000" retries="0" ref="batchUpdateCorrectService"/>
+
+    <dubbo:service interface="com.noriental.praxissvr.question.service.QuestionPartQueryService" protocol="dubbo"
+                   version="${service.dubbo.praxis.version}" timeout="5000" retries="0" ref="questionPartQueryService"/>
+
+</beans>

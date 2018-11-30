@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.question.bean.QuestionType">
+    <resultMap id="questionType" type="com.noriental.praxissvr.question.bean.QuestionType">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="type_id" property="typeId" jdbcType="INTEGER"/>
+        <result column="name" property="typeName" jdbcType="VARCHAR"/>
+        <result column="enable" property="enable" jdbcType="INTEGER"/>
+        <result column="struct_id" property="structId" jdbcType="INTEGER"/>
+    </resultMap>
+    <resultMap id="questionTypeSubject" type="com.noriental.praxissvr.question.bean.QuestionType">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="type_id" property="typeId" jdbcType="BIGINT"/>
+        <result column="type_name" property="typeName" jdbcType="VARCHAR"/>
+        <result column="subject_id" property="subjectId" jdbcType="BIGINT"/>
+        <result column="stage_id" property="stageId" jdbcType="BIGINT"/>
+        <result column="struct_id" property="structId" jdbcType="BIGINT"/>
+        <result column="is_single" property="isSingle" jdbcType="INTEGER"/>
+        <result column="upload_exercise_enable" property="uploadExerciseEnable" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+		id, type_id,name,enable,struct_id
+	</sql>
+
+    <select id="findById" parameterType="java.lang.Long" resultMap="questionType">
+		select
+		id,type_id,name,enable,struct_id
+		from entity_question_type
+        WHERE type_id = #{id,jdbcType=BIGINT}
+	</select>
+    <select id="findQuesTypeByName" parameterType="String" resultMap="questionType">
+		select
+		id,type_id,name,enable,struct_id
+		from entity_question_type 
+        WHERE name = #{name}			
+	</select>
+
+    <select id="findAllEnable" parameterType="map" resultMap="questionType">
+		select
+		id, type_id,name,enable,struct_id
+		from entity_question_type
+		WHERE enable = #{enable}
+	</select>
+
+    <select id="findAll" parameterType="map" resultMap="questionType">
+        select
+        <include refid="Base_Column_List"/>
+        from entity_question_type
+    </select>
+
+    <select id="findQuesTypeBySubjectId" parameterType="map" resultMap="questionTypeSubject">
+        select
+        l.id,l.subject_id,l.stage_id,t.type_id,t.`name` type_name, t.struct_id structId, (case qs.type WHEN '单题' THEN 1 WHEN '复合题' THEN 0 ELSE -1 END)
+        is_single,upload_exercise_enable
+        from link_ques_type_subject l inner JOIN entity_question_type t on l.type_id = t.type_id
+        LEFT JOIN entity_question_structure qs on t.struct_id = qs.struct_id
+        where t.enable = 1
+        and l.enable = 1
+        <if test="subjectId != null">
+            and subject_id = #{subjectId}
+        </if>
+        <if test="stageId != null">
+            and stage_id = #{stageId}
+        </if>
+        order by l.type_id
+    </select>
+
+</mapper>

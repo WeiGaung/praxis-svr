@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.3.xsd">
+
+    <context:annotation-config/>
+    <!-- RabbitMQ connection factory -->
+    <rabbit:connection-factory id="connectionFactory" addresses="${rabbit.connection.addresses}"
+                               username="${rabbit.connection.username}" password="${rabbit.connection.password}"/>
+
+    <!--上课作业测评预习mq消息发送  -->
+    <rabbit:queue id="lessonAnswer_praxissvr_queue" durable="true" auto-delete="false" exclusive="false" name="lessonAnswer_praxissvr_queue"/>
+    <rabbit:direct-exchange name="praxis-svr" durable="true" auto-delete="false" id="praxis-svr">
+        <rabbit:bindings>
+            <rabbit:binding queue="lessonAnswer_praxissvr_queue" key="lessonAnswer_praxissvr_key"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <rabbit:template id="rabbitTemplate" exchange="praxis-svr" connection-factory="connectionFactory" routing-key="lessonAnswer_praxissvr_key"/>
+
+    <!--上课作业测评预习mq消息持久化到mysql  防止消息堆积，concurrency设置并发数为10-->
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto" concurrency="5">
+        <rabbit:listener queues="lessonAnswer_praxissvr_queue" ref="oneMsgListener" method="onMessage"/>
+    </rabbit:listener-container>
+    <bean id="oneMsgListener" class="com.noriental.praxissvr.answer.listener.OneMsgListener"/>
+
+
+    <!--学生做答、老师批改统计服务消息推送 -->
+    <rabbit:queue id="trailCountQueue" durable="true" auto-delete="false" exclusive="false" name="trailCountQueue"/>
+    <rabbit:direct-exchange name="trail-svr" durable="true" auto-delete="false" id="trail-svr">
+        <rabbit:bindings>
+            <rabbit:binding queue="trailCountQueue" key="trailcount_trailsvr_key"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    <rabbit:template id="trailRabbitTemplate" exchange="trail-svr" connection-factory="connectionFactory" routing-key="trailcount_trailsvr_key"/>
+
+    <!--<rabbit:queue id="batchUpdateCorrect_trail_queue_new" durable="true" auto-delete="false" exclusive="false" name="trailCountQueue"/>
+    <rabbit:direct-exchange name="trail-svr" durable="true" auto-delete="false" id="trail-svr">
+        <rabbit:bindings>
+            <rabbit:binding queue="batchUpdateCorrect_trail_queue_new" key="trailcount_trailsvr_key"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    <rabbit:template id="trailRabbitTemplate" exchange="trail-svr" connection-factory="connectionFactory" routing-key="trailcount_trailsvr_key"/>-->
+
+    <!--添加习题上传solr RabbitMQ队列 -->
+    <rabbit:queue id="async_index_solr_queue" durable="true" auto-delete="false" exclusive="false" name="async_index_solr_queue"/>
+    <rabbit:direct-exchange name="solr" durable="true" auto-delete="false" id="solr">
+        <rabbit:bindings>
+            <rabbit:binding queue="async_index_solr_queue" key="async_index_solr_key"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    <rabbit:template id="solrUploadQuestionRabbitTemplate" exchange="solr" connection-factory="connectionFactory" routing-key="async_index_solr_key"/>
+
+
+    <!-- 习题批改消费端（推送已做对、未批改的习题）-->
+    <rabbit:queue id="question_correct_redis_queue" durable="true" auto-delete="false" exclusive="false" name="question_correct_redis_queue"/>
+    <rabbit:direct-exchange name="recommend" durable="true" auto-delete="false" id="recommend">
+        <rabbit:bindings>
+            <rabbit:binding queue="question_correct_redis_queue" key="question_correct_key"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <rabbit:template id="stuAnswerDataRabbitTemplate" exchange="recommend" connection-factory="connectionFactory" routing-key="question_correct_key"/>
+
+
+    <!--一键批改 -->
+    <rabbit:queue id="batchUpdateCorrect_praxissvr_queue" durable="true" auto-delete="false" exclusive="false" name="batchUpdateCorrect_praxissvr_queue"/>
+    <rabbit:direct-exchange name="batchUpdateCorrect_praxis_svr" durable="true" auto-delete="false" id="batchUpdateCorrect_praxis_svr">
+        <rabbit:bindings>
+            <rabbit:binding queue="batchUpdateCorrect_praxissvr_queue" key="batchUpdateCorrect_praxissvr_key"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    <rabbit:template id="batchUpdateCorrectTemplate" exchange="batchUpdateCorrect_praxis_svr" connection-factory="connectionFactory"
+                     routing-key="batchUpdateCorrect_praxissvr_key"/>
+
+    <!--监听一键批改mq消息持久化到mysql  -->
+    <rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto">
+        <rabbit:listener queues="batchUpdateCorrect_praxissvr_queue" ref="batchUpdateCorrectListener" method="onMessage"/>
+    </rabbit:listener-container>
+    <bean id="batchUpdateCorrectListener" class="com.noriental.praxissvr.answer.listener.BatchUpdateCorrectListener"/>
+
+
+    <!--一键批改向统计服务发送消息 -->
+    <rabbit:queue id="batchUpdateCorrect_trail_queue" durable="true" auto-delete="false" exclusive="false" name="batchUpdateCorrect_trail_queue"/>
+    <rabbit:direct-exchange name="batchUpdateCorrect_trail_svr" durable="true" auto-delete="false" id="batchUpdateCorrect_trail_svr">
+        <rabbit:bindings>
+            <rabbit:binding queue="batchUpdateCorrect_trail_queue" key="batchUpdateCorrect_trail_key"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    <rabbit:template id="batchUpdateCorrectTrailTemplate" exchange="batchUpdateCorrect_trail_svr" connection-factory="connectionFactory" routing-key="batchUpdateCorrect_trail_key"/>
+
+    <!--创建题目向统计服务发送消息 -->
+    <rabbit:queue id="createQuestion_recommend_queue" durable="true" auto-delete="false" exclusive="false" name="createQuestion_recommend_queue"/>
+    <rabbit:direct-exchange name="createQuestion_recommend_svr" durable="true" auto-delete="false" id="createQuestion_recommend_svr">
+        <rabbit:bindings>
+            <rabbit:binding queue="createQuestion_recommend_queue" key="createQuestion_recommend_key"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    <rabbit:template id="createQuestionRecommendTemplate" exchange="createQuestion_recommend_svr" connection-factory="connectionFactory" routing-key="createQuestion_recommend_key"/>
+    <!--&lt;!&ndash;监听创建的mq消息&ndash;&gt;-->
+    <!--<rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto">-->
+        <!--<rabbit:listener queues="createQuestion_recommend_queue" ref="createQuestionRecommendListener" method="onMessage"/>-->
+    <!--</rabbit:listener-container>-->
+    <!--<bean id="createQuestionRecommendListener" class="com.noriental.praxissvr.question.listener.CreateQuestionRecommendListener"/>-->
+
+
+</beans>
+

@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--所有第三方jar包maven插件定义在此项目中-->
+    <parent>
+        <groupId>com.noriental</groupId>
+        <artifactId>dep-versions-svr</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>praxis-svr</artifactId>
+    <packaging>pom</packaging>
+    <version>1.7.0-SNAPSHOT</version>
+    <modules>
+        <module>praxis-svr-api</module>
+        <module>praxis-svr-main</module>
+    </modules>
+    <!-- properties -->
+    <properties>
+        <!--每个项目会有以下两个配置项-->
+        <praxis-svr-api.version.dev>1.24</praxis-svr-api.version.dev>
+        <praxis-svr-api.version.hotfix>0</praxis-svr-api.version.hotfix>
+
+        <!--<solr-svr-api.version.dev>1.10</solr-svr-api.version.dev>-->
+        <solr-svr-api.version.dev>1.13</solr-svr-api.version.dev>
+        <solr-svr-api.version.hotfix>0</solr-svr-api.version.hotfix>
+
+        <admin-svr-api.version.dev>1.10</admin-svr-api.version.dev>
+        <admin-svr-api.version.hotfix>0</admin-svr-api.version.hotfix>
+
+        <push-svr-api.version.dev>1.6</push-svr-api.version.dev>
+        <push-svr-api.version.hotfix>0</push-svr-api.version.hotfix>
+
+        <trail-svr-api.version.dev>1.10</trail-svr-api.version.dev>
+        <trail-svr-api.version.hotfix>2</trail-svr-api.version.hotfix>
+
+        <public-svr-api.version.dev>1.8</public-svr-api.version.dev>
+        <public-svr-api.version.hotfix>0</public-svr-api.version.hotfix>
+
+        <lesson-svr-api.version.dev>1.36</lesson-svr-api.version.dev>
+        <lesson-svr-api.version.hotfix>0</lesson-svr-api.version.hotfix>
+
+        <user-svr-api.version.dev>1.6</user-svr-api.version.dev>
+        <user-svr-api.version.hotfix>0</user-svr-api.version.hotfix>
+
+        <security-svr-api.version.dev>1.6</security-svr-api.version.dev>
+        <security-svr-api.version.hotfix>0</security-svr-api.version.hotfix>
+
+        <im-svr-api.version.dev>1.6</im-svr-api.version.dev>
+        <im-svr-api.version.hotfix>0</im-svr-api.version.hotfix>
+
+        <praxis-svr-api.version>[${praxis-svr-api.version.dev}.${praxis-svr-api.version.hotfix}.0, ${praxis-svr-api.version.dev}.99.0]</praxis-svr-api.version>
+        <solr-svr-api.version>[${solr-svr-api.version.dev}.${solr-svr-api.version.hotfix}.0, ${solr-svr-api.version.dev}.99.0]</solr-svr-api.version>
+        <admin-svr-api.version>[${admin-svr-api.version.dev}.${admin-svr-api.version.hotfix}.0, ${admin-svr-api.version.dev}.99.0]</admin-svr-api.version>
+        <push-svr-api.version>[${push-svr-api.version.dev}.${push-svr-api.version.hotfix}.0, ${push-svr-api.version.dev}.99.0]</push-svr-api.version>
+        <trail-svr-api.version>[${trail-svr-api.version.dev}.${trail-svr-api.version.hotfix}.0, ${trail-svr-api.version.dev}.99.0]</trail-svr-api.version>
+        <public-svr-api.version>[${public-svr-api.version.dev}.${public-svr-api.version.hotfix}.0, ${public-svr-api.version.dev}.99.0]</public-svr-api.version>
+        <lesson-svr-api.version>[${lesson-svr-api.version.dev}.${lesson-svr-api.version.hotfix}.0, ${lesson-svr-api.version.dev}.99.0]</lesson-svr-api.version>
+        <user-svr-api.version>[${user-svr-api.version.dev}.${user-svr-api.version.hotfix}.0, ${user-svr-api.version.dev}.99.0]</user-svr-api.version>
+        <security-svr-api.version>[${security-svr-api.version.dev}.${security-svr-api.version.hotfix}.0, ${security-svr-api.version.dev}.99.0]</security-svr-api.version>
+        <im-svr-api.version>[${im-svr-api.version.dev}.${im-svr-api.version.hotfix}.0, ${im-svr-api.version.dev}.99.0]</im-svr-api.version>
+
+    </properties>
+    <!--只留下面这一个-->
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>public</id>
+            <name>Public Repositories</name>
+            <url>http://maven.okjiaoyu.cn/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+    <profiles>
+        <!--profile中定义每个api的版本-->
+        <profile>
+            <id>local</id>
+            <properties>
+                <profiles.active>local</profiles.active>
+                <profiles.skip>true</profiles.skip>
+                <praxis-svr-api.version>${praxis-svr-api.version.dev}.0-SNAPSHOT</praxis-svr-api.version>
+                <solr-svr-api.version>${solr-svr-api.version.dev}.0-SNAPSHOT</solr-svr-api.version>
+                <admin-svr-api.version>${admin-svr-api.version.dev}.0-SNAPSHOT</admin-svr-api.version>
+                <push-svr-api.version>${push-svr-api.version.dev}.0-SNAPSHOT</push-svr-api.version>
+                <trail-svr-api.version>${trail-svr-api.version.dev}.0-SNAPSHOT</trail-svr-api.version>
+                <public-svr-api.version>${public-svr-api.version.dev}.0-SNAPSHOT</public-svr-api.version>
+                <lesson-svr-api.version>${lesson-svr-api.version.dev}.0-SNAPSHOT</lesson-svr-api.version>
+                <user-svr-api.version>${user-svr-api.version.dev}.0-SNAPSHOT</user-svr-api.version>
+                <security-svr-api.version>${security-svr-api.version.dev}.0-SNAPSHOT</security-svr-api.version>
+                <im-svr-api.version>${im-svr-api.version.dev}.0-SNAPSHOT</im-svr-api.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>chen</id>
+            <properties>
+                <profiles.active>chen</profiles.active>
+                <profiles.skip>true</profiles.skip>
+                <praxis-svr-api.version>${praxis-svr-api.version.dev}.0-SNAPSHOT</praxis-svr-api.version>
+                <solr-svr-api.version>${solr-svr-api.version.dev}.0-SNAPSHOT</solr-svr-api.version>
+                <admin-svr-api.version>${admin-svr-api.version.dev}.0-SNAPSHOT</admin-svr-api.version>
+                <push-svr-api.version>${push-svr-api.version.dev}.0-SNAPSHOT</push-svr-api.version>
+                <trail-svr-api.version>${trail-svr-api.version.dev}.0-SNAPSHOT</trail-svr-api.version>
+                <public-svr-api.version>${public-svr-api.version.dev}.0-SNAPSHOT</public-svr-api.version>
+                <lesson-svr-api.version>${lesson-svr-api.version.dev}.0-SNAPSHOT</lesson-svr-api.version>
+                <user-svr-api.version>${user-svr-api.version.dev}.0-SNAPSHOT</user-svr-api.version>
+                <security-svr-api.version>${security-svr-api.version.dev}.0-SNAPSHOT</security-svr-api.version>
+                <im-svr-api.version>${im-svr-api.version.dev}.0-SNAPSHOT</im-svr-api.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <profiles.active>dev</profiles.active>
+                <profiles.skip>true</profiles.skip>
+                <praxis-svr-api.version>${praxis-svr-api.version.dev}.${praxis-svr-api.version.hotfix}-SNAPSHOT</praxis-svr-api.version>
+                <solr-svr-api.version>${solr-svr-api.version.dev}.${solr-svr-api.version.hotfix}-SNAPSHOT</solr-svr-api.version>
+                <admin-svr-api.version>${admin-svr-api.version.dev}.${admin-svr-api.version.hotfix}-SNAPSHOT</admin-svr-api.version>
+                <push-svr-api.version>${push-svr-api.version.dev}.${push-svr-api.version.hotfix}-SNAPSHOT</push-svr-api.version>
+                <trail-svr-api.version>${trail-svr-api.version.dev}.${trail-svr-api.version.hotfix}-SNAPSHOT</trail-svr-api.version>
+                <public-svr-api.version>${public-svr-api.version.dev}.${public-svr-api.version.hotfix}-SNAPSHOT</public-svr-api.version>
+                <lesson-svr-api.version>${lesson-svr-api.version.dev}.${lesson-svr-api.version.hotfix}-SNAPSHOT</lesson-svr-api.version>
+                <user-svr-api.version>${user-svr-api.version.dev}.${user-svr-api.version.hotfix}-SNAPSHOT</user-svr-api.version>
+                <security-svr-api.version>${security-svr-api.version.dev}.${security-svr-api.version.hotfix}-SNAPSHOT</security-svr-api.version>
+                <im-svr-api.version>${im-svr-api.version.dev}.${im-svr-api.version.hotfix}-SNAPSHOT</im-svr-api.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>test</id>
+            <properties>
+                <profiles.active>test</profiles.active>
+                <profiles.skip>true</profiles.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <profiles.active>prod</profiles.active>
+                <profiles.skip>true</profiles.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+
+        </profile>
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <profiles.active>sonar</profiles.active>
+                <profiles.skip>false</profiles.skip>
+                <praxis-svr-api.version>${praxis-svr-api.version.dev}.0-SNAPSHOT</praxis-svr-api.version>
+                <solr-svr-api.version>${solr-svr-api.version.dev}.0-SNAPSHOT</solr-svr-api.version>
+                <admin-svr-api.version>${admin-svr-api.version.dev}.0-SNAPSHOT</admin-svr-api.version>
+                <push-svr-api.version>${push-svr-api.version.dev}.0-SNAPSHOT</push-svr-api.version>
+                <trail-svr-api.version>${trail-svr-api.version.dev}.0-SNAPSHOT</trail-svr-api.version>
+                <public-svr-api.version>${public-svr-api.version.dev}.0-SNAPSHOT</public-svr-api.version>
+                <lesson-svr-api.version>${lesson-svr-api.version.dev}.0-SNAPSHOT</lesson-svr-api.version>
+                <user-svr-api.version>${user-svr-api.version.dev}.0-SNAPSHOT</user-svr-api.version>
+                <security-svr-api.version>${security-svr-api.version.dev}.0-SNAPSHOT</security-svr-api.version>
+                <im-svr-api.version>${im-svr-api.version.dev}.0-SNAPSHOT</im-svr-api.version>
+            </properties>
+        </profile>
+    </profiles>
+    <dependencyManagement>
+        <!--此处的dependencies只能有api，第三方jar到dep-version中定义-->
+        <dependencies>
+            <dependency>
+                <artifactId>praxis-svr-api</artifactId>
+                <groupId>com.noriental</groupId>
+                <version>${praxis-svr-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.noriental</groupId>
+                <artifactId>solr-svr-api</artifactId>
+                <version>${solr-svr-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>spring-data-solr</artifactId>
+                        <groupId>org.springframework.data</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>gson</artifactId>
+                        <groupId>com.google.code.gson</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <artifactId>slf4j-api</artifactId>
+                        <groupId>org.slf4j</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.noriental</groupId>
+                <artifactId>admin-svr-api</artifactId>
+                <version>${admin-svr-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.noriental</groupId>
+                <artifactId>trail-svr-api</artifactId>
+                <version>${trail-svr-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.noriental</groupId>
+                <artifactId>push-svr-api</artifactId>
+                <version>${push-svr-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.noriental</groupId>
+                <artifactId>user-svr-api</artifactId>
+                <version>${user-svr-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.noriental</groupId>
+                <artifactId>public-svr-api</artifactId>
+                <version>${public-svr-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.noriental</groupId>
+                <artifactId>lesson-svr-api</artifactId>
+                <version>${lesson-svr-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.noriental</groupId>
+                <artifactId>security-svr-api</artifactId>
+                <version>${security-svr-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.noriental</groupId>
+                <artifactId>im-svr-api</artifactId>
+                <version>${im-svr-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+</project>

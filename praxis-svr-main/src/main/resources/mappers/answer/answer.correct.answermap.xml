@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.answer.mappers.AnswerCorrectMapper">
+    <resultMap id="wrongQuesExercise" type="com.noriental.praxissvr.answer.bean.StudentExercise">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="student_id" property="studentId" jdbcType="BIGINT"/>
+        <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
+        <result column="question_id" property="questionId" jdbcType="BIGINT"/>
+        <result column="exercise_source" property="exerciseSource" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="picture_source" property="pictureSource" jdbcType="INTEGER"/>
+        <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP"/>
+        <result column="corrector_id" property="correctorId" jdbcType="BIGINT"/>
+        <result column="corrector_time" property="correctorTime" jdbcType="TIMESTAMP"/>
+        <result column="parent_question_id" property="parentQuestionId" jdbcType="BIGINT"/>
+        <result column="resource_id" property="resourceId" jdbcType="BIGINT"/>
+        <result column="redo_status" property="redoStatus" jdbcType="VARCHAR"/>
+        <result column="redo_source" property="redoSource" jdbcType="INTEGER"/>
+        <result column="postil_teacher_date" property="postilTeacherDate" jdbcType="TIMESTAMP"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="struct_id" property="structId" jdbcType="BIGINT"/>
+        <result column="question_type" property="questionType" jdbcType="VARCHAR"/>
+        <!--<result column="correct_status" property="correctStatus" jdbcType="BIGINT"/>-->
+        <result column="class_id" property="classId" jdbcType="BIGINT"/>
+        <result column="result" property="result" jdbcType="VARCHAR"/>
+        <result column="correct_role" property="correctorRole" jdbcType="VARCHAR"/>
+        <result column="postil" property="postilTeacher" jdbcType="VARCHAR"/>
+        <result column="answer" property="submitAnswer" jdbcType="VARCHAR"/>
+        <result column="postil_svg_flag" property="isNew" jdbcType="INTEGER"/>
+        <result column="audio_result" property="audioResult" jdbcType="VARCHAR"/>
+        <result column="intell_result" property="intellResult" jdbcType="VARCHAR"/>
+        <result column="is_white_list" property="isWhiteList" jdbcType="INTEGER"/>
+        <result column="intell_postil" property="intellPostil" jdbcType="VARCHAR"/>
+        <result column="intell_postil_status" property="intellPostilStatus" jdbcType="INTEGER"/>
+        <result column="flag" property="flag" jdbcType="INTEGER"/>
+    </resultMap>
+
+
+    <update id="batchUpdateCorrect" parameterType="java.util.List" statementType="STATEMENT">
+        <foreach collection="list" item="item" separator=";">
+            update ${item.tableName}
+            <set>
+                <if test="item.result!=null ">
+                    result ='${item.result}',
+                </if>
+                <if test="item.correctorId!=null ">
+                    corrector_id =${item.correctorId},
+                </if>
+                <if test="item.correctorRole!=null ">
+                    correct_role ='${item.correctorRole}',
+                </if>
+                <if test="item.correctorTime!=null">
+                    corrector_time= now(),
+                </if>
+                <if test="item.lastUpdateTime!=null ">
+                    last_update_time =now(),
+                </if>
+                <if test="item.flag!=null ">
+                    flag =${item.flag},
+                </if>
+                <if test="item.totalScore!=null ">
+                    total_score =${item.totalScore},
+                </if>
+                <if test="item.score!=null ">
+                    score =${item.score}
+                </if>
+            </set>
+            <where>
+                <if test="item.studentId != null">
+                    student_id = ${item.studentId}
+                </if>
+                <if test="item.exerciseSource != null">
+                    and exercise_source = ${item.exerciseSource}
+                </if>
+                <if test="item.resourceId != null">
+                    and resource_id = ${item.resourceId}
+                </if>
+
+                <if test="item.questionId != null">
+                    and question_id = ${item.questionId}
+                </if>
+                <if test="item.year != null">
+                    and year = ${item.year}
+                </if>
+                <if test="item.classId != null">
+                    and class_id = ${item.classId}
+                </if>
+            </where>
+        </foreach>
+    </update>
+
+
+    <select id="findStudentAnswers" parameterType="java.util.HashMap" statementType="STATEMENT" resultMap="wrongQuesExercise">
+        SELECT
+        student_id, question_id,struct_id, exercise_source, create_time, submit_time,resource_id
+        FROM ${tableName} WHERE  resource_id = ${resourceId}
+        limit 0,1
+
+    </select>
+
+    <update id="updateIntellInfo" parameterType="java.util.List" statementType="STATEMENT">
+        <foreach collection="list" item="item" separator=";">
+            update ${item.tableName}
+            <set>
+                <if test="item.result!=null ">
+                    result ='${item.result}',
+                </if>
+                <if test="item.correctorId!=null ">
+                    corrector_id =${item.correctorId},
+                </if>
+                <if test="item.correctorRole!=null ">
+                    correct_role ='${item.correctorRole}',
+                </if>
+                <if test="item.intellResult!=null ">
+                    intell_result ='${item.intellResult}',
+                </if>
+                <if test="item.isWhiteList!=null ">
+                    is_white_list ='${item.isWhiteList}',
+                </if>
+                <if test="item.intellPostil!=null ">
+                    intell_postil ='${item.intellPostil}',
+                </if>
+                <if test="item.intellResource!=null ">
+                    intell_resource ='${item.intellResource}',
+                </if>
+                <if test="item.flag!=null ">
+                    flag =${item.flag}
+                </if>
+                <!--  <if test="item.intellMatrix!=null ">
+                      intell_matrix =#{item.intellMatrix},
+                  </if>-->
+            </set>
+            <where>
+                <if test="item.studentId != null">
+                    student_id = ${item.studentId}
+                </if>
+                <if test="item.exerciseSource != null">
+                    and exercise_source = ${item.exerciseSource}
+                </if>
+                <if test="item.resourceId != null">
+                    and resource_id = ${item.resourceId}
+                </if>
+
+                <if test="item.questionId != null">
+                    and question_id = ${item.questionId}
+                </if>
+                <if test="item.year != null">
+                    and year = ${item.year}
+                </if>
+                <if test="item.classId != null">
+                    and class_id = ${item.classId}
+                </if>
+            </where>
+        </foreach>
+
+
+    </update>
+
+    <select id="findStudentExerciseInfo" parameterType="java.util.HashMap" statementType="STATEMENT" resultMap="wrongQuesExercise">
+        SELECT
+        student_id, question_id,parent_question_id,question_type,struct_id, exercise_source, create_time, submit_time,resource_id,result,answer,correct_role
+        FROM ${tableName} WHERE  id = ${id}
+
+    </select>
+
+
+    <select id="findIntellStudentAnswer" parameterType="java.util.HashMap" statementType="STATEMENT" resultMap="wrongQuesExercise">
+        SELECT
+        student_id, question_id,struct_id, exercise_source, create_time, submit_time,resource_id,result,correct_role,intell_result,is_white_list,intell_postil,intell_postil_status
+        FROM ${tableName} WHERE  resource_id = ${resourceId} and exercise_source=${exerciseSource} and intell_result is not null
+
+
+    </select>
+
+
+    <select id="findStudentAnswerList" parameterType="java.util.HashMap" statementType="STATEMENT" resultMap="wrongQuesExercise">
+        SELECT
+        student_id, question_id,struct_id, exercise_source, create_time, submit_time,resource_id,class_id,result,correct_role,flag,total_score,score
+        FROM ${tableName} WHERE  resource_id = ${resourceId} and exercise_source=${exerciseSource}
+
+    </select>
+
+
+    <insert id="insertDataToCms" parameterType="com.noriental.praxissvr.answer.bean.BrushDataEntity" >
+        INSERT INTO cms_brush_questions_correct (exercise_source, resource_id, student_id, busFlag, create_time,update_time)
+        VALUES
+        (#{exerciseSource}, #{resourceId},#{studentId}, #{busFlag}, NOW(),NOW())
+    </insert>
+
+</mapper>
+
+

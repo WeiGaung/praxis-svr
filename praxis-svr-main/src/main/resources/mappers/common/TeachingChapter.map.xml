@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noriental.praxissvr.question.mapper.TeacherChapterMapper">
+
+    <select id="findChaptersById" parameterType="long" resultType="com.noriental.praxissvr.question.bean.EntityTeachingChapter">
+        SELECT
+        T2.id,
+        T2.name,
+        T2.directory_id AS directoryId,
+        T2.chapter_number AS chapterNumber,
+        T2.prefix_name AS prefixName,
+        T2.stage_id AS stageId,
+        T2.subject_id AS subjectId,
+        T2.parent_id AS parentId
+        FROM
+        (SELECT
+        @r AS _id,
+        (SELECT
+        @r := parent_id
+        FROM
+        `entity_teaching_chapter`
+        WHERE id = _id) AS parent_id,
+        @l := @l + 1 AS lvl
+        FROM
+        (SELECT
+        @r := #{chapterId},
+        @l := 0) vars,
+        `entity_teaching_chapter` h
+        WHERE @r != 0) T1
+        JOIN `entity_teaching_chapter` T2
+        ON T1._id = T2.id
+        ORDER BY T1.lvl DESC
+    </select>
+
+
+    <select id="findVersionByDirectoryId" resultType="java.util.Map">
+        SELECT version_id FROM entity_teaching_directory WHERE id=#{directoryId}
+    </select>
+
+
+</mapper>
+

@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.answer.dao.StudentExerciseDao">
+    <resultMap id="studentExercise" type="com.noriental.praxissvr.answer.bean.StudentExercise">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="student_id" property="studentId" jdbcType="BIGINT"/>
+        <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
+        <result column="question_id" property="questionId" jdbcType="BIGINT"/>
+        <result column="exercise_source" property="exerciseSource" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="picture_source" property="pictureSource" jdbcType="INTEGER"/>
+        <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP"/>
+        <result column="corrector_id" property="correctorId" jdbcType="BIGINT"/>
+        <result column="corrector_time" property="correctorTime" jdbcType="TIMESTAMP"/>
+        <result column="parent_question_id" property="parentQuestionId" jdbcType="BIGINT"/>
+        <result column="resource_id" property="resourceId" jdbcType="BIGINT"/>
+        <result column="redo_status" property="redoStatus" jdbcType="VARCHAR"/>
+        <result column="redo_source" property="redoSource" jdbcType="INTEGER"/>
+        <result column="postil_teacher_date" property="postilTeacherDate" jdbcType="TIMESTAMP"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="struct_id" property="structId" jdbcType="BIGINT"/>
+        <result column="class_id" property="classId" jdbcType="BIGINT"/>
+        <result column="year" property="year" jdbcType="INTEGER"/>
+        <!-- #{item.correctorRole},#{item.postilTeacher},#{item.submitAnswer}-->
+        <result column="result" property="result" jdbcType="VARCHAR"/>
+        <result column="correct_role" property="correctorRole" jdbcType="VARCHAR"/>
+        <result column="postil" property="postilTeacher" jdbcType="VARCHAR"/>
+        <result column="answer" property="submitAnswer" jdbcType="VARCHAR"/>
+        <result column="intell_result" property="intellResult" jdbcType="VARCHAR"/>
+        <result column="intell_postil" property="intellPostil" jdbcType="VARCHAR"/>
+        <result column="intell_postil_status" property="intellPostilStatus" jdbcType="INTEGER"/>
+        <result column="postil_svg_flag" property="isNew" jdbcType="INTEGER"/>
+        <result column="audio_result" property="audioResult" jdbcType="VARCHAR"/>
+        <result column="total_score" property="totalScore" jdbcType="DOUBLE"/>
+        <result column="is_white_list" property="isWhiteList" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+		id, student_id, question_id,struct_id, exercise_source, create_time, picture_source,submit_time,
+		corrector_id,corrector_time,parent_question_id,resource_id,redo_status,redo_source,
+		last_update_time,class_id,`year`,sub_exercise_source,result,correct_role,postil,answer,intell_result,is_white_list,intell_postil,intell_postil_status,postil_svg_flag,audio_result,total_score,score
+	</sql>
+
+    <sql id="Base_Column_List_Data">
+        id, student_id, question_id,struct_id, exercise_source, create_time, picture_source,submit_time,
+        corrector_id,corrector_time,parent_question_id,resource_id,redo_status,redo_source,
+        last_update_time,class_id,`year`,sub_exercise_source,result,correct_role,postil,answer,postil_svg_flag
+    </sql>
+
+
+    <select id="findByStudentExercise" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise" resultMap="studentExercise">
+        select
+        <include refid="Base_Column_List"/>
+        from entity_student_exercise
+        <where>
+            <if test="exerciseSource != null">
+                 exercise_source = #{exerciseSource}
+            </if>
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+            <if test="resourceIdList != null and resourceIdList.size()>0">
+                and resource_id in
+                <foreach item="item" index="index" collection="resourceIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="studentId != null">
+                and  student_id = #{studentId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="questionIdList != null and questionIdList.size()>0">
+                and question_id in
+                <foreach item="item" index="index" collection="questionIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="redoStatus != null">
+                and redo_status = #{redoStatus}
+            </if>
+            <if test="redoSource != null">
+                and redo_source = #{redoSource}
+            </if>
+            <if test="parentQuestionId != null">
+                and parent_question_id = #{parentQuestionId}
+            </if>
+
+            <if test="year != null">
+                and `year` = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+            <if test="structIdList != null and structIdList.size()>0">
+                and struct_id in
+                <foreach item="item" index="index" collection="structIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+        </where>
+        order by id asc
+    </select>
+
+    <select id="getCountByStuExeList" parameterType="java.util.List" resultType="int">
+        select count(*) from entity_student_exercise
+        <where>
+            <foreach collection="list" item="item" separator=" or ">
+                (
+                1 = 1
+                <if test="item.studentId != null">
+                    and student_id = #{item.studentId}
+                </if>
+                <if test="item.questionId != null">
+                    and question_id = #{item.questionId}
+                </if>
+                <if test="item.resourceId != null">
+                    and resource_id = #{item.resourceId}
+                </if>
+                <if test="item.parentQuestionId != null">
+                    and parent_question_id = #{item.parentQuestionId}
+                </if>
+                <if test="item.exerciseSource != null">
+                    and exercise_source = #{item.exerciseSource}
+                </if>
+                <if test="item.redoSource != null">
+                    and redo_source = #{item.redoSource}
+                </if>
+                <if test="item.year != null">
+                    and year = #{item.year}
+                </if>
+                <if test="item.classId != null">
+                    and class_id = #{item.classId}
+                </if>
+                )
+            </foreach>
+        </where>
+    </select>
+
+    <select id="findListByStuExeList" parameterType="java.util.List" resultMap="studentExercise">
+        select
+        <include refid="Base_Column_List"/>
+        from entity_student_exercise
+        <where>
+            <foreach collection="list" item="item" separator=" or ">
+                (
+                1 = 1
+                <if test="item.studentId != null">
+                    and student_id = #{item.studentId}
+                </if>
+                <if test="item.questionId != null">
+                    and question_id = #{item.questionId}
+                </if>
+                <if test="item.resourceId != null">
+                    and resource_id = #{item.resourceId}
+                </if>
+                <if test="item.parentQuestionId != null">
+                    and parent_question_id = #{item.parentQuestionId}
+                </if>
+                <if test="item.exerciseSource != null">
+                    and exercise_source = #{item.exerciseSource}
+                </if>
+                <if test="item.redoSource != null">
+                    and redo_source = #{item.redoSource}
+                </if>
+                <if test="item.year != null">
+                    and year = #{item.year}
+                </if>
+                <if test="item.classId != null">
+                    and class_id = #{item.classId}
+                </if>
+                )
+            </foreach>
+        </where>
+    </select>
+
+
+    <insert id="insert" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+		insert into entity_student_exercise
+		(student_id,student_name, question_id, exercise_source,
+		create_time, picture_source,submit_time,
+		resource_id,class_id,corrector_id,
+		parent_question_id,corrector_time,`year`,struct_id,last_update_time)
+		values (#{studentId,jdbcType=BIGINT}, #{studentName,jdbcType=VARCHAR}, #{questionId,jdbcType=BIGINT},
+		#{exerciseSource,jdbcType=VARCHAR},
+		#{createTime,jdbcType=TIMESTAMP}, #{pictureSource,jdbcType=INTEGER},#{submitTime,jdbcType=TIMESTAMP},
+		#{resourceId,jdbcType=BIGINT},#{classId,jdbcType=BIGINT},#{correctorId,jdbcType=BIGINT},
+		#{parentQuestionId,jdbcType=BIGINT},#{correctorTime,jdbcType=TIMESTAMP},#{year,jdbcType=BIGINT},#{structId,jdbcType=BIGINT},#{lastUpdateTime,jdbcType=TIMESTAMP})
+	</insert>
+
+
+    <update id="updataByStuExes" parameterType="java.util.List">
+
+        <foreach collection="list" item="item" separator=";">
+            update entity_student_exercise
+            <set>
+                <if test="item.redoStatus != null">
+                    redo_status = #{item.redoStatus},
+                </if>
+                <if test="item.correctorId != null">
+                    corrector_id = #{item.correctorId},
+                </if>
+                <if test="item.correctorTime != null">
+                    corrector_time = #{item.correctorTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="item.submitTime != null">
+                    submit_time = #{item.submitTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="item.pictureSource != null">
+                    picture_source = #{item.pictureSource},
+                </if>
+                <if test="item.postilTeacherDate != null">
+                    postil_teacher_date = #{item.postilTeacherDate},
+                </if>
+            </set>
+            <where>
+                <if test="item.studentId != null">
+                    student_id = #{item.studentId}
+                </if>
+                <if test="item.questionId != null">
+                    and question_id = #{item.questionId}
+                </if>
+                <if test="item.exerciseSource != null">
+                    and exercise_source = #{item.exerciseSource}
+                </if>
+                <if test="item.resourceId != null">
+                    and resource_id = #{item.resourceId}
+                </if>
+                <if test="item.redoSource != null">
+                    and redo_source = #{item.redoSource}
+                </if>
+                <if test="item.year != null">
+                    and year = #{item.year}
+                </if>
+                <if test="item.classId != null">
+                    and class_id = #{item.classId}
+                </if>
+            </where>
+        </foreach>
+    </update>
+    <insert id="creates" parameterType="java.util.List">
+        insert into entity_student_exercise (student_id,student_name, question_id, exercise_source,
+        create_time, picture_source,submit_time,
+        resource_id,class_id,corrector_id,parent_question_id,corrector_time,redo_status,redo_source,`year`,struct_id,last_update_time,
+        sub_exercise_source,result,correct_role,postil,answer,audio_result,postil_svg_flag,flag,total_score,score)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.studentId,jdbcType=BIGINT}, #{item.studentName,jdbcType=VARCHAR}, #{item.questionId,jdbcType=BIGINT},
+            #{item.exerciseSource,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=TIMESTAMP}, #{item.pictureSource,jdbcType=INTEGER},#{item.submitTime,jdbcType=TIMESTAMP},
+            #{item.resourceId,jdbcType=BIGINT},#{item.classId,jdbcType=BIGINT},#{item.correctorId,jdbcType=BIGINT},
+            #{item.parentQuestionId,jdbcType=BIGINT},#{item.correctorTime,jdbcType=TIMESTAMP},
+            #{item.redoStatus,jdbcType=VARCHAR},#{item.redoSource,jdbcType=VARCHAR},#{item.year,jdbcType=BIGINT},#{item.structId},#{item.lastUpdateTime},
+            #{item.subExerciseSource},#{item.result},#{item.correctorRole},#{item.postilTeacher},#{item.submitAnswer},#{item.audioResult},#{item.isNew},#{item.flag},#{item.totalScore},#{item.score})
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+        update entity_student_exercise
+        <set>
+            <if test="studentName != null">
+                student_name = #{studentName,jdbcType=VARCHAR},
+            </if>
+            <if test="pictureSource != null">
+                picture_source = #{pictureSource,jdbcType=INTEGER},
+            </if>
+            <if test="correctorId != null">
+                corrector_id = #{correctorId},
+            </if>
+            <if test="correctorTime != null">
+                corrector_time = #{correctorTime},
+            </if>
+            <if test="lastUpdateTime != null">
+                last_update_time = #{lastUpdateTime},
+            </if>
+            <if test="postilTeacherDate != null">
+                postil_teacher_date = #{postilTeacherDate},
+            </if>
+            <if test="redoStatus != null">
+                redo_status = #{redoStatus},
+            </if>
+            <!--新增 -->
+            <if test="subExerciseSource !=null">
+                sub_exercise_source=#{subExerciseSource},
+            </if>
+            <if test="result !=null">
+                result=#{result},
+            </if>
+            <if test="correctorRole !=null">
+                correct_role=#{correctorRole},
+            </if>
+            <if test="postilTeacher !=null">
+                postil=#{postilTeacher},
+            </if>
+            <if test="submitAnswer !=null">
+                answer=#{submitAnswer},
+            </if>
+            <if test="intellPostilStatus!=null">
+                intell_postil_status=#{intellPostilStatus},
+            </if>
+            <if test="intellResult!=null">
+                intell_result=#{intellResult},
+            </if>
+            <if test="isWhiteList!=null">
+                is_white_list=#{isWhiteList},
+            </if>
+            <if test="intellResource!=null">
+                intell_resource=#{intellResource},
+            </if>
+            <if test="isNew!=null">
+                postil_svg_flag=#{isNew},
+            </if>
+            <if test="flag!=null">
+                flag=#{flag},
+            </if>
+            <if test="totalScore!=null">
+                total_score=#{totalScore},
+            </if>
+            <if test="score!=null">
+                score=#{score}
+            </if>
+        </set>
+        <where>
+            1=1
+            <if test="studentId != null">
+                and student_id = #{studentId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="exerciseSource != null">
+                and exercise_source = #{exerciseSource}
+            </if>
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+            <if test="parentQuestionId != null">
+                and parent_question_id = #{parentQuestionId}
+            </if>
+            <if test="redoSource != null">
+                and redo_source = #{redoSource}
+            </if>
+            <if test="year != null">
+                and year = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+        </where>
+
+    </update>
+
+
+    <update id="updateRepeatCorrect" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+        update entity_student_exercise
+        <set>
+
+            <if test="redoStatus != null">
+                redo_status = #{redoStatus},
+            </if>
+
+        </set>
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="exerciseSource != null">
+                and exercise_source = #{exerciseSource}
+            </if>
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+            <if test="parentQuestionId != null">
+                and parent_question_id = #{parentQuestionId}
+            </if>
+            <if test="redoSource != null">
+                and redo_source = #{redoSource}
+            </if>
+            <if test="year != null">
+                and year = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+        </where>
+
+    </update>
+
+    <update id="updateBatch" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+        update entity_student_exercise
+        <set>
+            corrector_id =
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.correctorId != null">#{item.correctorId}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            corrector_time =
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.correctorTime != null">#{item.correctorTime}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            redo_status =
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.redoStatus != null">#{item.redoStatus}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            result=
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.result != null">#{item.result}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            correct_role=
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.correctorRole != null">#{item.correctorRole}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            answer=
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.submitAnswer != null">#{item.submitAnswer}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            audio_result=
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.audioResult != null">#{item.audioResult}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            flag=
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.flag != null">#{item.flag}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            <!--新增 -->
+
+            <if test="subExerciseSource!=null ">
+                sub_exercise_source =#{subExerciseSource},
+
+            </if>
+            <if test="submitTime != null">
+                submit_time = #{submitTime},
+            </if>
+            <if test="lastUpdateTime != null">
+                last_update_time = #{lastUpdateTime},
+            </if>
+        </set>
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="exerciseSource != null">
+                and exercise_source = #{exerciseSource}
+            </if>
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+            <if test="updateSubmitAnswerVoList != null and updateSubmitAnswerVoList.size()>0">
+                and question_id in
+                <foreach item="item" collection="updateSubmitAnswerVoList" open="(" separator="," close=")">
+                    #{item.questionId}
+                </foreach>
+            </if>
+            <if test="redoSource != null">
+                and redo_source = #{redoSource}
+            </if>
+            <if test="year != null">
+                and year = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+        </where>
+
+    </update>
+
+
+    <update id="updateIntellInfo" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+        update entity_student_exercise
+        <set>
+            <if test="intellResult!=null ">
+                intell_result =#{intellResult},
+            </if>
+            <if test="isWhiteList!=null ">
+                is_white_list =#{isWhiteList},
+            </if>
+            <if test="intellPostil!=null ">
+                intell_postil =#{intellPostil},
+            </if>
+            <if test="intellResource!=null ">
+                intell_resource =#{intellResource},
+            </if>
+
+        </set>
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="exerciseSource != null">
+                and exercise_source = #{exerciseSource}
+            </if>
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="year != null">
+                and year = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+
+        </where>
+
+    </update>
+
+
+    <delete id="deleteErrorQuestionChallenge" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+        delete
+        from entity_student_exercise
+        <where>
+            <if test="studentId != null">
+                student_id = #{studentId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="questionIdList != null and questionIdList.size()>0">
+                and question_id in
+                <foreach item="item" index="index" collection="questionIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="structIdList != null and structIdList.size()>0">
+                and struct_id in
+                <foreach item="item" index="index" collection="structIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="exerciseSource != null">
+                and exercise_source = #{exerciseSource}
+            </if>
+            <if test="redoSource != null">
+                and redo_source = #{redoSource}
+            </if>
+            <if test="parentQuestionId != null">
+                and parent_question_id = #{parentQuestionId}
+            </if>
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+            <if test="resourceIdList != null and resourceIdList.size()>0">
+                and resource_id in
+                <foreach item="item" index="index" collection="resourceIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="year != null">
+                and `year` = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+        </where>
+
+
+    </delete>
+
+
+    <select id="findHistoryData" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise" resultMap="studentExercise">
+        select
+        <include refid="Base_Column_List_Data"/>
+        from entity_student_exercise
+        <where>
+            parent_question_id is not null
+
+            <if test="exerciseSource != null">
+                and exercise_source = #{exerciseSource}
+            </if>
+
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+
+            <if test="year != null">
+                and `year` = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

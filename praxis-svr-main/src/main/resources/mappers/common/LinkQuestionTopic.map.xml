@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noriental.praxissvr.question.mapper.LinkQuestionTopicMapper">
+
+    <!-- 单个插入 -->
+    <insert id="createQuestionTopicLink" parameterType="long">
+        INSERT INTO link_question_topic (question_id,topic_id) VALUES (#{questionId},#{topicId})
+    </insert>
+
+    <!-- 批量插入 -->
+    <insert id="batchQuestionTopicLink" useGeneratedKeys="true" parameterType="java.util.List">
+        INSERT INTO link_question_topic (question_id,topic_id) VALUES
+        <foreach item="item" collection="list"  index= "index" separator=",">
+            (#{item.questionId},#{item.topicId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteQuestionTopicLinkById" parameterType="long">
+      DELETE FROM link_question_topic WHERE question_id=#{questionId}
+    </delete>
+
+
+    <!-- 通过questionId获取主题列表 -->
+    <select id="findLinkQuestionTopicByQuestionId" parameterType="long" resultType="com.noriental.praxissvr.question.bean.LinkQuestionTopic">
+      SELECT id,
+            question_id AS questionId,
+            topic_id AS topicId,
+            mastery
+            FROM link_question_topic WHERE question_id=#{questionId}
+    </select>
+
+</mapper>
+

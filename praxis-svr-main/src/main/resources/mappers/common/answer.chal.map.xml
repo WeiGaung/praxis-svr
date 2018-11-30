@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.wrong.bean.AnswerChal" >
+  <resultMap id="answerChal" type="com.noriental.praxissvr.wrong.bean.AnswerChal" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="student_id" property="studentId" jdbcType="BIGINT" />
+      <result column="resource_id" property="resourceId" jdbcType="BIGINT" />
+      <result column="question_id" property="questionId" jdbcType="BIGINT" />
+      <result column="exercise_source" property="exerciseSource" jdbcType="VARCHAR" />
+      <result column="flag" property="flag" jdbcType="VARCHAR" />
+  </resultMap>
+    <sql id="Base_Column_List">
+        id,student_id,resource_id,question_id,exercise_source,flag
+    </sql>
+    <select id="findByAnswerChal" parameterType="com.noriental.praxissvr.wrong.bean.AnswerChal" resultMap="answerChal">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from entity_answer_chal
+        <where>
+            1=1
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="studentId != null">
+                and student_id = #{studentId}
+            </if>
+            <if test="resourceId != null">
+                and  resource_id = #{resourceId}
+            </if>
+            <if test="questionId != null">
+                and  question_id = #{questionId}
+            </if>
+            <if test="exerciseSource != null">
+                and  exercise_source = #{exerciseSource}
+            </if>
+            <if test="flag != null">
+                and  flag = #{flag}
+            </if>
+            <if test="quesIdList != null and quesIdList.size()>0">
+                and question_id in
+                <foreach item="item" index="index" collection="quesIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.noriental.praxissvr.wrong.bean.AnswerChal" useGeneratedKeys="true" keyProperty="id" >
+        insert into entity_answer_chal
+        (`exercise_source`,   `resource_id`,  `student_id` , `question_id`,create_time)
+        values
+            (#{exerciseSource},#{resourceId},#{studentId},#{questionId},now())
+    </insert>
+
+    <insert id="inserts" parameterType="java.util.List">
+    insert into entity_answer_chal
+    (`exercise_source`,  `resource_id`,  `student_id` , `question_id`,create_time)
+    values
+        <foreach collection="list" item="item" separator=",">
+                (#{item.exerciseSource},#{item.resourceId},#{item.studentId},#{item.questionId},now())
+        </foreach>
+  </insert>
+
+    <update id="update" parameterType="com.noriental.praxissvr.wrong.bean.AnswerChal">
+        update entity_answer_chal
+        <set>
+            <if test="flagNew != null">
+                flag = #{flagNew}
+            </if>
+        </set>
+        <where>
+            1=1
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="studentId != null">
+                and student_id = #{studentId}
+            </if>
+
+            <if test="resourceId != null">
+                and  resource_id = #{resourceId}
+            </if>
+            <if test="questionId != null">
+                and  question_id = #{questionId}
+            </if>
+            <if test="exerciseSource != null">
+                and  exercise_source = #{exerciseSource}
+            </if>
+            <if test="flag != null">
+                and  flag = #{flag}
+            </if>
+            <if test="quesIdList != null and quesIdList.size()>0">
+                and question_id in
+                <foreach item="item" index="index" collection="quesIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </update>
+
+    <delete id="deleteAnswerChal" parameterType="com.noriental.praxissvr.wrong.bean.AnswerChal">
+
+        delete from entity_answer_chal
+        <where>
+            1=1
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="studentId != null">
+                and student_id = #{studentId}
+            </if>
+
+            <if test="resourceId != null">
+                and  resource_id = #{resourceId}
+            </if>
+            <if test="questionId != null">
+                and  question_id = #{questionId}
+            </if>
+            <if test="exerciseSource != null">
+                and  exercise_source = #{exerciseSource}
+            </if>
+            <if test="flag != null">
+                and  flag = #{flag}
+            </if>
+            <if test="quesIdList != null and quesIdList.size()>0">
+                and question_id in
+                <foreach item="item" index="index" collection="quesIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+
+    </delete>
+
+</mapper>

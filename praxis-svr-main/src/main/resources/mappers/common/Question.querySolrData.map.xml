@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.question.mapper.QueryDataForSolrMapper">
+
+    <select id="findDataForSolr" parameterType="Long"
+            resultType="com.noriental.praxissvr.question.bean.solrBean.QueryDataForSolrBean">
+SELECT(SELECT bb.org_id FROM neworiental_user.entity_user bb WHERE bb.system_id = a.upload_id) orgId,
+( SELECT group_concat('topic_id:',aa.topic_id,'`~`','topic_mastery:',ifnull(aa.mastery, 0),'`~`','topic_name:',bb.`name` SEPARATOR '`|`')FROM link_question_topic aa,entity_topic bb WHERE aa.question_id = a.id AND aa.topic_id = bb.id) topic,
+(SELECT group_concat('chapter_id:',aa.chapter_id SEPARATOR '`|`')FROM link_question_chapter aa WHERE aa.question_id = a.id) chapter,
+(SELECT	group_concat('chapter_id1:',aa.chapter_id,',chapter_prefix_name1:',bb.prefix_name,',chapter_name1:',bb. NAME SEPARATOR '`|`') FROM link_question_chapter aa LEFT JOIN entity_teaching_chapter bb ON bb.id = aa.chapter_id AND bb.`level` = 1 WHERE aa.question_id = a.id) chapter1,
+(SELECT group_concat('chapter_id2:',aa.chapter_id,',chapter_prefix_name2:',bb.prefix_name,',chapter_name2:',bb. NAME,'`~`','chapter_id1:',bb.parent_id ,',chapter_prefix_name1:',cc.prefix_name,',chapter_name1:',cc. NAME  SEPARATOR '`|`')FROM link_question_chapter aa LEFT JOIN entity_teaching_chapter bb ON bb.id = aa.chapter_id LEFT JOIN entity_teaching_chapter cc ON bb.parent_id = cc.id AND bb.`level` = 2 WHERE	aa.question_id = a.id) chapter2,
+(SELECT group_concat('chapter_id3:',aa.chapter_id,',chapter_prefix_name3:',bb.prefix_name,',chapter_name3:',bb. NAME,'`~`','chapter_id2:',bb.parent_id,',chapter_prefix_name2:',cc.prefix_name,',chapter_name2:',cc. NAME,'`~`','chapter_id1:',cc.parent_id ,',chapter_prefix_name1:',dd.prefix_name,',chapter_name1:',dd. NAME SEPARATOR '`|`') FROM link_question_chapter aa LEFT JOIN entity_teaching_chapter bb ON bb.id = aa.chapter_id LEFT JOIN entity_teaching_chapter cc ON cc.id = bb.parent_id LEFT JOIN entity_teaching_chapter dd ON cc.parent_id = dd.id	AND bb.`level` = 3 WHERE aa.question_id = a.id) chapter3,
+d.`name` questionGroupName FROM(SELECT * FROM entity_question WHERE id = #{id} ) a LEFT JOIN entity_question_same c ON c.question_id = a.id LEFT JOIN entity_group d ON d.id = a.question_group
+ </select>
+
+
+</mapper>

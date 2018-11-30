@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noriental.praxissvr.question.bean.TopicQuestion">
+    <resultMap id="topicQuestionMap" type="com.noriental.praxissvr.question.bean.TopicQuestion">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="mastery" property="mastery" jdbcType="INTEGER"/>
+        <association property="question" column="question_id"
+                     javaType="com.noriental.praxissvr.question.bean.Question" select="getQuestion">
+            <id property="id" column="id"/>
+        </association>
+        <association property="topic" column="topic_id"
+                     javaType="com.noriental.adminsvr.bean.knowledge.Topic" select="getTopic">
+            <id property="id" column="id"/>
+            <result property="name" column="name" />
+        </association>
+    </resultMap>
+    
+    <resultMap id="topicQuestionInfoMap" type="com.noriental.praxissvr.question.bean.TopicQuestion">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="mastery" property="mastery" jdbcType="INTEGER"/>
+        <result column="question_id" property="questionId" jdbcType="BIGINT" />
+        <result column="topic_id" property="topicId" jdbcType="BIGINT" />
+    </resultMap>
+
+    <select id="getQuestion" parameterType="com.noriental.praxissvr.question.bean.TopicQuestion"
+            resultType="com.noriental.praxissvr.question.bean.Question">
+        select * from entity_question where id=#{question.id}
+    </select>
+    <select id="getTopic" parameterType="com.noriental.praxissvr.question.bean.TopicQuestion"
+            resultType="com.noriental.adminsvr.bean.knowledge.Topic">
+        select * from entity_topic where id=#{topic.id}
+    </select>
+
+    <select id="findByQuestionId" resultMap="topicQuestionMap" parameterType="java.lang.Long">
+        select * from link_question_topic
+        where question_id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="findByQuestion" resultMap="topicQuestionMap"
+            parameterType="com.noriental.praxissvr.question.bean.Question">
+        select * from link_question_topic
+        where question_id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="findByTopicAndQuestion" resultMap="topicQuestionMap">
+        select * from link_question_topic
+        where topic_id = #{0.id} and question_id = #{1.id}
+    </select>
+
+    <select id="findByTopicId" resultMap="topicQuestionMap" parameterType="java.lang.Long">
+        select * from link_question_topic
+        where topic_id = #{id,jdbcType=BIGINT}
+    </select>
+    
+    <select id="findByTopicIdSimple" resultMap="topicQuestionInfoMap" parameterType="java.lang.Long">
+        select * from link_question_topic
+        where topic_id = #{id,jdbcType=BIGINT}
+    </select>
+
+     <!--topic下所有题目-->
+     <select id="findQuesByTopicIds" resultMap="topicQuestionInfoMap" parameterType="list">      
+		select  t.question_id from link_question_topic  t WHERE t.topic_id in 
+         <foreach item="item"  collection="list"  open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select> 
+    <!--topic下所有题目，超出topic集合的题目-->
+     <select id="findOverQuesByTopicIds" resultMap="topicQuestionInfoMap" parameterType="list">      
+		select  DISTINCT q.question_id from link_question_topic  q 
+		WHERE q.question_id in (
+				  select t.question_id from link_question_topic  t WHERE t.topic_id in 
+			           <foreach item="item"  collection="list" open="(" separator="," close=")">
+			            #{item}
+			        </foreach>
+		 )
+		and q.topic_id not in  
+		     <foreach item="item" collection="list"  open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+    </select> 
+
+
+    <select id="findByTopic" resultMap="topicQuestionMap"
+            parameterType="com.noriental.adminsvr.bean.knowledge.Topic">
+        select * from link_question_topic
+        where topic_id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="findByTopics" resultMap="topicQuestionMap" parameterType="java.lang.Long">
+        select * from link_question_topic
+        where topic_id in
+        <foreach item="item" index="index" collection="topics"
+                 open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </select>
+
+    <delete id="delete" parameterType="com.noriental.praxissvr.question.bean.TopicQuestion" >
+        delete from link_question_topic
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+
+
+    <delete id="deleteByQuestionId" parameterType="java.lang.Long">
+        delete from link_question_topic
+        where question_id = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <delete id="deleteByQuestion" parameterType="com.noriental.praxissvr.question.bean.Question">
+        delete from link_question_topic
+        where question_id = #{id,jdbcType=BIGINT}
+    </delete>
+
+
+    <insert id="insert" parameterType="com.noriental.praxissvr.question.bean.TopicQuestion"
+            useGeneratedKeys="true" keyProperty="id">
+    insert into link_question_topic (question_id,topic_id,mastery)
+    values (#{question.id,jdbcType=BIGINT}, #{topic.id,jdbcType=BIGINT}, #{mastery,jdbcType=INTEGER})
+  </insert>
+
+    <update id="update" parameterType="com.noriental.praxissvr.question.bean.TopicQuestion">
+        update link_question_topic
+        <set>
+            <if test="question != null">
+                question_id = #{question.id,jdbcType=BIGINT},
+            </if>
+            <if test="topic != null">
+                topic_id = #{topic.id,jdbcType=BIGINT},
+            </if>
+            <if test="mastery != 0">
+                mastery = #{mastery,jdbcType=INTEGER},
+            </if>
+
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    
+    
+	<select id="findTopicQuestionInfoByQuestionId" parameterType="long" resultMap="topicQuestionInfoMap">
+        select * from link_question_topic where question_id = #{questionId}
+    </select>
+    
+    <select id="findTopicsByQuesIds" parameterType="list" resultMap="topicQuestionInfoMap">
+        select * from link_question_topic where question_id in  
+  			<foreach item="item" collection="list"  open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+    </select>
+</mapper>

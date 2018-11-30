@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noriental.praxissvr.question.mapper.LinkTeachingChapterKnowledgeMapper">
+
+    <!-- 通过主题ID获取教材章节知识点主题专题关联chapter_id -->
+    <select id="findLinkTeachingChapterKnowledgeByTopicId" resultType="com.noriental.praxissvr.question.bean.LinkTeachingChapterKnowledge">
+        SELECT id,
+              type,
+              topic_id AS topicId,
+              series_id AS seriesId,
+              topic_name AS topicName,
+              series_name AS seriesName,
+              create_time AS createTime,
+              chapter_id AS chapterId
+              FROM link_teaching_chapter_knowledge
+              WHERE topic_id=#{topicId}
+    </select>
+
+</mapper>

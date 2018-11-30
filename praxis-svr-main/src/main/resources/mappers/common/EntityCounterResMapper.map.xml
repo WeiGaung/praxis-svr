@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.question.mapper.EntityCounterResMapper" >
+
+    <select id="find" parameterType="java.util.List"  resultType="com.noriental.praxissvr.question.bean.EntityCounterResources">
+        select object_Id,fav_count,ref_count from counter_res
+        where 1=1 and object_type = 8 AND object_Id IN
+        <foreach item="id" index="index" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <update id="updateCounter" parameterType="long">
+         UPDATE counter_res SET fav_count=#{favCount} WHERE object_type = 8 AND object_Id =#{questionId}
+    </update>
+
+</mapper>

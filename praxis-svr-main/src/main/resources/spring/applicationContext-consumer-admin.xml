@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <dubbo:reference
+            id="chapterKnowledgeService"
+            interface="com.noriental.adminsvr.service.teaching.ChapterKnowledgeService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="topicService"
+            interface="com.noriental.adminsvr.service.knowledge.TopicService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="seriesService"
+            interface="com.noriental.adminsvr.service.knowledge.SeriesService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="chapterService"
+            interface="com.noriental.adminsvr.service.teaching.ChapterService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="commonDirectorService"
+            interface="com.noriental.adminsvr.service.platform.CommonDirectorService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="unitService"
+            interface="com.noriental.adminsvr.service.knowledge.UnitService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="moduleService"
+            interface="com.noriental.adminsvr.service.knowledge.ModuleService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="publicSchoolService"
+            interface="com.noriental.adminsvr.service.platform.PublicSchoolService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="privateSchoolService"
+            interface="com.noriental.adminsvr.service.platform.PrivateSchoolService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="privateDirectorService"
+            interface="com.noriental.adminsvr.service.platform.PrivateDirectorService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="publicDirectorService"
+            interface="com.noriental.adminsvr.service.platform.PublicDirectorService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+    <dubbo:reference
+            id="commonSchoolService"
+            interface="com.noriental.adminsvr.service.platform.CommonSchoolService"
+            version="${service.dubbo.admin.version}" check="false" timeout="5000"/>
+
+</beans>

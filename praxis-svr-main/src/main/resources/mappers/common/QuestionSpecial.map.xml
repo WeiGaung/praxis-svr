@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noriental.praxissvr.question.mapper.QuestionSpecialMapper">
+
+    <select id="queryQuestionSpecialList" resultType="com.noriental.praxissvr.question.bean.EntityQuestionSpecial">
+        select a.*,b.name from (select exam_sites_id from link_question_exam_sites where question_id=#{questionId}) a LEFT JOIN entity_special_exam_sites b ON a.exam_sites_id=b.id
+    </select>
+
+    <insert id="createQuestionSpecial" parameterType="com.noriental.praxissvr.question.bean.EntityQuestionSpecial">
+        insert into link_question_exam_sites(question_id,exam_sites_id) VALUES(#{questionId},#{examSitesId})
+    </insert>
+
+    <insert id="batchInsertQuestionSpecial" parameterType="com.noriental.praxissvr.question.bean.EntityQuestionSpecial">
+        insert into link_question_exam_sites(question_id,exam_sites_id) VALUES
+        <foreach item="item" collection="list"  index= "index" separator=",">
+            (#{item.questionId}, #{item.examSitesId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteQuestionSpecialById" parameterType="long">
+        DELETE FROM link_question_exam_sites WHERE question_id=#{questionId}
+    </delete>
+</mapper>
+

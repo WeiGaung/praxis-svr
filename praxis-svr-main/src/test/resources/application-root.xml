@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+
+    <!-- dubbo监控，切勿删除 -->
+    <dubbo:monitor protocol="registry"/>
+
+
+    <!-- 提供方应用信息，用于计算依赖关系 -->
+    <dubbo:application name="provider"  />
+
+    <!-- 使用multicast广播注册中心暴露服务地址 -->
+    <dubbo:registry address="${dubbo.registry.address}" check="false"/>
+
+    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="${dubbo.protocol.port}" />
+
+    <dubbo:provider retries="0"></dubbo:provider>
+
+    <import resource="classpath:spring/applicationContext.xml"/>
+    <import resource="classpath:spring/applicationContext-answerdb.xml"/>
+    <import resource="classpath:spring/applicationContext-teacherweb-wrongques.xml"/>
+    <import resource="classpath:spring/applicationContext-consumer-admin.xml"/>
+    <import resource="classpath:spring/applicationContext-consumer-lesson.xml"/>
+    <import resource="classpath:spring/applicationContext-consumer-push.xml"/>
+    <import resource="classpath:spring/applicationContext-consumer-solr.xml"/>
+    <import resource="classpath:spring/applicationContext-consumer-trail.xml"/>
+    <import resource="classpath:spring/applicationContext-consumer-user.xml"/>
+    <import resource="classpath:spring/applicationContext-consumer-public.xml"/>
+    <import resource="classpath:spring/applicationContext-consumer-security.xml"/>
+  <!--  <import resource="classpath:spring/applicationContext-mongodb.xml"/>-->
+    <import resource="classpath:spring/applicationContext-rabbit.xml"/>
+    <import resource="classpath:spring/applicationContext-redis.xml"/>
+    <import resource="classpath:spring/applicationContext-sharding.xml"/>
+    <import resource="classpath:spring/applicationContext-ssdb.xml"/>
+
+   <!-- <import resource="applicationContext-*.xml"/>-->
+
+</beans>

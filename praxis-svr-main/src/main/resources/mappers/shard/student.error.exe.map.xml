@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.noriental.praxissvr.answer.dao.StudentErrorExeDao">
+    <resultMap id="studentExercise" type="com.noriental.praxissvr.answer.bean.StudentExercise">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="student_id" property="studentId" jdbcType="BIGINT"/>
+        <result column="student_name" property="studentName" jdbcType="VARCHAR"/>
+        <result column="question_id" property="questionId" jdbcType="BIGINT"/>
+        <result column="exercise_source" property="exerciseSource" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="picture_source" property="pictureSource" jdbcType="INTEGER"/>
+        <result column="submit_time" property="submitTime" jdbcType="TIMESTAMP"/>
+        <result column="corrector_id" property="correctorId" jdbcType="BIGINT"/>
+        <result column="corrector_time" property="correctorTime" jdbcType="TIMESTAMP"/>
+        <result column="parent_question_id" property="parentQuestionId" jdbcType="BIGINT"/>
+        <result column="resource_id" property="resourceId" jdbcType="BIGINT"/>
+        <result column="redo_status" property="redoStatus" jdbcType="VARCHAR"/>
+        <result column="redo_source" property="redoSource" jdbcType="INTEGER"/>
+        <result column="postil_teacher_date" property="postilTeacherDate" jdbcType="TIMESTAMP"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="struct_id" property="structId" jdbcType="BIGINT"/>
+        <result column="question_type" property="questionType" jdbcType="VARCHAR"/>
+        <result column="result" property="result" jdbcType="VARCHAR"/>
+        <result column="correct_role" property="correctorRole" jdbcType="VARCHAR"/>
+        <result column="postil" property="postilTeacher" jdbcType="VARCHAR"/>
+        <result column="answer" property="submitAnswer" jdbcType="VARCHAR"/>
+        <result column="postil_svg_flag" property="isNew" jdbcType="INTEGER"/>
+        <result column="audio_result" property="audioResult" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+		id, student_id,student_name, question_id,struct_id, exercise_source, create_time, picture_source,submit_time,
+		corrector_id,corrector_time,parent_question_id,resource_id,redo_status,redo_source,postil_teacher_date,last_update_time,
+		question_type,result,correct_role,postil,answer,postil_svg_flag,audio_result
+	</sql>
+
+
+    <insert id="insert" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+		insert into entity_student_error_exe
+		(student_id,student_name, question_id, exercise_source,
+		create_time, picture_source,submit_time,
+		resource_id,class_id,corrector_id,
+		parent_question_id,corrector_time,`year`,struct_id,last_update_time)
+		values (#{studentId,jdbcType=BIGINT}, #{studentName,jdbcType=VARCHAR}, #{questionId,jdbcType=BIGINT},
+		#{exerciseSource,jdbcType=VARCHAR},
+		#{createTime,jdbcType=TIMESTAMP}, #{pictureSource,jdbcType=INTEGER},#{submitTime,jdbcType=TIMESTAMP},
+		#{resourceId,jdbcType=BIGINT},#{classId,jdbcType=BIGINT},#{correctorId,jdbcType=BIGINT},
+		#{parentQuestionId,jdbcType=BIGINT},#{correctorTime,jdbcType=TIMESTAMP},#{year,jdbcType=BIGINT},#{structId,jdbcType=BIGINT},#{lastUpdateTime,jdbcType=TIMESTAMP})
+	</insert>
+
+
+    <insert id="creates" parameterType="java.util.List">
+        insert into entity_student_error_exe (student_id,student_name, question_id, exercise_source,
+        create_time, picture_source,submit_time,
+        resource_id,class_id,corrector_id,parent_question_id,corrector_time,redo_status,redo_source,`year`,struct_id,last_update_time,
+        result,correct_role,postil,answer,audio_result,postil_svg_flag)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.studentId,jdbcType=BIGINT}, #{item.studentName,jdbcType=VARCHAR}, #{item.questionId,jdbcType=BIGINT},
+            #{item.exerciseSource,jdbcType=VARCHAR},
+            #{item.createTime,jdbcType=TIMESTAMP}, #{item.pictureSource,jdbcType=INTEGER},#{item.submitTime,jdbcType=TIMESTAMP},
+            #{item.resourceId,jdbcType=BIGINT},#{item.classId,jdbcType=BIGINT},#{item.correctorId,jdbcType=BIGINT},
+            #{item.parentQuestionId,jdbcType=BIGINT},#{item.correctorTime,jdbcType=TIMESTAMP},
+            #{item.redoStatus,jdbcType=VARCHAR},#{item.redoSource,jdbcType=VARCHAR},#{item.year,jdbcType=BIGINT},#{item.structId},
+            #{item.lastUpdateTime},#{item.result},#{item.correctorRole},#{item.postilTeacher},#{item.submitAnswer},#{item.audioResult},#{item.isNew})
+        </foreach>
+    </insert>
+
+    <delete id="delete" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+        delete from entity_student_error_exe
+        <where>
+            <if test="studentId != null">
+                and student_id = #{studentId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="exerciseSource != null">
+                and exercise_source = #{exerciseSource}
+            </if>
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+            <if test="parentQuestionId != null">
+                and parent_question_id = #{parentQuestionId}
+            </if>
+            <if test="redoSource != null">
+                and redo_source = #{redoSource}
+            </if>
+            <if test="year != null">
+                and year = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+
+        </where>
+    </delete>
+    <update id="update" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+        update entity_student_error_exe
+        <set>
+            <if test="studentName != null">
+                student_name = #{studentName,jdbcType=VARCHAR},
+            </if>
+            <if test="pictureSource != null">
+                picture_source = #{pictureSource,jdbcType=INTEGER},
+            </if>
+            <if test="correctorId != null">
+                corrector_id = #{correctorId},
+            </if>
+            <if test="correctorTime != null">
+                corrector_time = #{correctorTime},
+            </if>
+            <if test="lastUpdateTime != null">
+                last_update_time = #{lastUpdateTime},
+            </if>
+            <if test="postilTeacherDate != null">
+                postil_teacher_date = #{postilTeacherDate},
+            </if>
+            <if test="redoStatus != null">
+                redo_status = #{redoStatus},
+            </if>
+            <if test="result !=null">
+                result=#{result},
+            </if>
+            <if test="correctorRole !=null">
+                correct_role=#{correctorRole},
+            </if>
+            <if test="postilTeacher !=null">
+                postil=#{postilTeacher},
+            </if>
+            <if test="submitAnswer !=null">
+                answer=#{submitAnswer},
+            </if>
+            <if test="isNew!=null ">
+                postil_svg_flag =#{isNew},
+            </if>
+        </set>
+        <where>
+            1=1
+            <if test="studentId != null">
+                and student_id = #{studentId}
+            </if>
+            <if test="questionId != null">
+                and question_id = #{questionId}
+            </if>
+            <if test="exerciseSource != null">
+                and exercise_source = #{exerciseSource}
+            </if>
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+
+            <if test="redoSource != null">
+                and redo_source = #{redoSource}
+            </if>
+            <if test="year != null">
+                and year = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+        </where>
+
+    </update>
+
+    <update id="updateBatch" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+        update entity_student_error_exe
+        <set>
+            corrector_id =
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.correctorId != null">#{item.correctorId}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            corrector_time =
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.correctorTime != null">#{item.correctorTime}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            redo_status =
+            <foreach collection="updateSubmitAnswerVoList" item="item" open="( case " separator="" close=" end ),">
+                WHEN question_id = #{item.questionId} then
+                <choose>
+                    <when test="item.redoStatus != null">#{item.redoStatus}</when>
+                    <otherwise>null</otherwise>
+                </choose>
+            </foreach>
+            <if test="submitTime != null">
+                submit_time = #{submitTime},
+            </if>
+            <if test="lastUpdateTime != null">
+                last_update_time = #{lastUpdateTime},
+            </if>
+        </set>
+        <where>
+            1=1
+            <if test="studentId != null">
+                and student_id = #{studentId}
+            </if>
+            <if test="exerciseSource != null">
+                and exercise_source = #{exerciseSource}
+            </if>
+            <if test="resourceId != null">
+                and resource_id = #{resourceId}
+            </if>
+            <if test="updateSubmitAnswerVoList != null and updateSubmitAnswerVoList.size()>0">
+                and question_id in
+                <foreach item="item" collection="updateSubmitAnswerVoList" open="(" separator="," close=")">
+                    #{item.questionId}
+                </foreach>
+            </if>
+            <if test="redoSource != null">
+                and redo_source = #{redoSource}
+            </if>
+            <if test="year != null">
+                and year = #{year}
+            </if>
+            <if test="classId != null">
+                and class_id = #{classId}
+            </if>
+        </where>
+
+    </update>
+
+
+    <select id="findByQuesIds" resultMap="studentExercise" parameterType="com.noriental.praxissvr.answer.bean.StudentExercise">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM entity_student_error_exe
+        <where>
+            1=1
+            <if test="studentId !=null">
+                and student_id = #{studentId}
+            </if>
+            <if test="questionIdList != null and questionIdList.size()>0">
+                and question_id in
+                <foreach item="item" index="index" collection="questionIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="parentQuesIdList != null and parentQuesIdList.size()>0">
+                and parent_question_id in
+                <foreach item="item" index="index" collection="parentQuesIdList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>
